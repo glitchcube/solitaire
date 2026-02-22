@@ -14,14 +14,14 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 ## M2 - Deck + Initial Deal Logic
 
-- [todo] Define domain types (`Card`, `Pile`, `GameState`, `Move`).
-- [todo] Implement `createDeck()`.
-- [todo] Implement `shuffleDeck()`.
-- [todo] Implement `dealInitialBoard()`.
-- [todo] Test: 52 unique cards.
-- [todo] Test: tableau sizes 1..7.
-- [todo] Test: only tableau top cards face-up after deal.
-- [todo] Test: stock size is correct after deal.
+- [done] Define domain types (`Card`, `Pile`, `GameState`, `Move`).
+- [done] Implement `createDeck()`.
+- [done] Implement `shuffleDeck()`.
+- [done] Implement `dealInitialBoard()`.
+- [done] Test: 52 unique cards.
+- [done] Test: tableau sizes 1..7.
+- [done] Test: only tableau top cards face-up after deal.
+- [done] Test: stock size is correct after deal.
 
 ## M3 - Move Validation + Engine
 
