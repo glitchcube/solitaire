@@ -38,6 +38,30 @@ function nearWinState(): GameState {
       { kind: 'foundation', cards: suitCards('diamonds', 13) },
       { kind: 'foundation', cards: suitCards('spades', 13) }
     ],
+    stock: { kind: 'stock', cards: [makeCard('hearts', 2, false)] },
+    waste: { kind: 'waste', cards: [] },
+    moveCount: 0,
+    status: 'in_progress'
+  };
+}
+
+function autoFinishState(): GameState {
+  return {
+    tableau: [
+      { kind: 'tableau', cards: [makeCard('hearts', 2, true)] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] }
+    ],
+    foundations: [
+      { kind: 'foundation', cards: [makeCard('hearts', 1, true)] },
+      { kind: 'foundation', cards: [] },
+      { kind: 'foundation', cards: [] },
+      { kind: 'foundation', cards: [] }
+    ],
     stock: { kind: 'stock', cards: [] },
     waste: { kind: 'waste', cards: [] },
     moveCount: 0,
@@ -94,5 +118,31 @@ describe('App', () => {
     });
     expect(screen.queryByTestId('replay-mode-banner')).not.toBeInTheDocument();
     expect(screen.getByText('Status: Won')).toBeInTheDocument();
+  });
+
+  it('auto-finishes to foundation when stock/waste are empty and all cards are revealed', async () => {
+    vi.useFakeTimers();
+    render(<App initialState={autoFinishState()} />);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.getByTestId('auto-finish-banner')).toBeInTheDocument();
+    expect(screen.getByText('Status: Auto Finish')).toBeInTheDocument();
+    expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(90);
+    });
+    expect(screen.getByText('Foundation 1 (2)')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(90);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.queryByTestId('auto-finish-banner')).not.toBeInTheDocument();
+    expect(screen.getByText('Status: In Progress')).toBeInTheDocument();
   });
 });

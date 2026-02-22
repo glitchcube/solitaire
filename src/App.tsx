@@ -22,6 +22,7 @@ type AppProps = {
 };
 
 const REPLAY_STEP_MS = 140;
+const AUTO_FINISH_STEP_MS = 90;
 
 function isSameLocation(a: Location | null, b: Location): boolean {
   return a?.pileKind === b.pileKind && a?.pileIndex === b.pileIndex && a?.cardIndex === b.cardIndex;
@@ -97,6 +98,46 @@ function findFirstFaceUpCardIndex(state: GameState, tableauIndex: number): numbe
   return cardIndex >= 0 ? cardIndex : null;
 }
 
+function allTableauCardsFaceUp(state: GameState): boolean {
+  return state.tableau.every((pile) => pile.cards.every((card) => card.faceUp));
+}
+
+function findNextAutoFoundationMove(state: GameState): Move | null {
+  for (let pileIndex = 0; pileIndex < state.tableau.length; pileIndex += 1) {
+    const pile = state.tableau[pileIndex];
+    const cardIndex = pile.cards.length - 1;
+    if (cardIndex < 0) {
+      continue;
+    }
+
+    const from: Location = {
+      pileKind: 'tableau',
+      pileIndex,
+      cardIndex
+    };
+
+    for (
+      let foundationIndex = 0;
+      foundationIndex < state.foundations.length;
+      foundationIndex += 1
+    ) {
+      if (!isValidToFoundationMove(state, from, foundationIndex)) {
+        continue;
+      }
+
+      return {
+        from,
+        to: {
+          pileKind: 'foundation',
+          pileIndex: foundationIndex
+        }
+      };
+    }
+  }
+
+  return null;
+}
+
 function App({ initialState }: AppProps) {
   const [state, setState] = useState<GameState>(() => initialState ?? createInitialGame());
   const [selected, setSelected] = useState<Location | null>(null);
@@ -104,10 +145,13 @@ function App({ initialState }: AppProps) {
   const [showHotkeys, setShowHotkeys] = useState(false);
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [isReplayMode, setIsReplayMode] = useState(false);
+  const [isAutoFinishMode, setIsAutoFinishMode] = useState(false);
   const [hasReplayedWin, setHasReplayedWin] = useState(false);
   const [feedback, setFeedback] = useState<string>('');
   const historyRef = useRef<GameState[]>([state]);
+  const stateRef = useRef(state);
   const replayTimerRef = useRef<number | null>(null);
+  const autoFinishTimerRef = useRef<number | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -117,7 +161,7 @@ function App({ initialState }: AppProps) {
   );
 
   function canSelectSource(location: Location): boolean {
-    if (isReplayMode) {
+    if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
       return false;
     }
 
@@ -148,7 +192,7 @@ function App({ initialState }: AppProps) {
 
   const executeMove = useCallback(
     (move: Move, invalidFeedback: string): boolean => {
-      if (isReplayMode) {
+      if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
         return false;
       }
 
@@ -163,11 +207,11 @@ function App({ initialState }: AppProps) {
       setFeedback('');
       return true;
     },
-    [isReplayMode, state]
+    [isAutoFinishMode, isReplayMode, showNewGameConfirm, state]
   );
 
   function handlePileClick(destination: Location): void {
-    if (isReplayMode) {
+    if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
       return;
     }
 
@@ -210,7 +254,7 @@ function App({ initialState }: AppProps) {
   }
 
   function handleDragStart(event: DragStartEvent): void {
-    if (isReplayMode) {
+    if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
       return;
     }
 
@@ -219,7 +263,7 @@ function App({ initialState }: AppProps) {
   }
 
   function handleDragEnd(event: DragEndEvent): void {
-    if (isReplayMode) {
+    if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
       return;
     }
 
@@ -249,7 +293,7 @@ function App({ initialState }: AppProps) {
         return;
       }
 
-      if (isReplayMode) {
+      if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
         return;
       }
 
@@ -360,9 +404,46 @@ function App({ initialState }: AppProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [executeMove, isReplayMode, selected, state]);
+  }, [executeMove, isAutoFinishMode, isReplayMode, selected, showNewGameConfirm, state]);
 
   const dragPreview = getDragPreview(state, activeDrag);
+
+  const stopAutoFinish = useCallback((): void => {
+    if (autoFinishTimerRef.current !== null) {
+      window.clearInterval(autoFinishTimerRef.current);
+      autoFinishTimerRef.current = null;
+    }
+  }, []);
+
+  const startAutoFinish = useCallback((): void => {
+    if (isReplayMode || isAutoFinishMode) {
+      return;
+    }
+
+    stopAutoFinish();
+    setIsAutoFinishMode(true);
+    setSelected(null);
+    setFeedback('');
+
+    autoFinishTimerRef.current = window.setInterval(() => {
+      const current = stateRef.current;
+      const nextMove = findNextAutoFoundationMove(current);
+      if (!nextMove) {
+        stopAutoFinish();
+        setIsAutoFinishMode(false);
+        return;
+      }
+
+      const next = applyMove(current, nextMove);
+      if (next === current) {
+        stopAutoFinish();
+        setIsAutoFinishMode(false);
+        return;
+      }
+
+      setState(next);
+    }, AUTO_FINISH_STEP_MS);
+  }, [isAutoFinishMode, isReplayMode, stopAutoFinish]);
 
   const stopReplay = useCallback((): void => {
     if (replayTimerRef.current !== null) {
@@ -401,7 +482,11 @@ function App({ initialState }: AppProps) {
   }, [stopReplay]);
 
   useEffect(() => {
-    if (isReplayMode) {
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    if (isReplayMode || isAutoFinishMode) {
       return;
     }
 
@@ -409,28 +494,51 @@ function App({ initialState }: AppProps) {
     if (history[history.length - 1] !== state) {
       history.push(state);
     }
-  }, [isReplayMode, state]);
+  }, [isAutoFinishMode, isReplayMode, state]);
 
   useEffect(() => {
-    if (state.status !== 'won' || hasReplayedWin || isReplayMode) {
+    if (
+      isReplayMode ||
+      isAutoFinishMode ||
+      showNewGameConfirm ||
+      state.status === 'won' ||
+      state.stock.cards.length > 0 ||
+      state.waste.cards.length > 0 ||
+      !allTableauCardsFaceUp(state)
+    ) {
+      return;
+    }
+
+    if (!findNextAutoFoundationMove(state)) {
+      return;
+    }
+
+    startAutoFinish();
+  }, [isAutoFinishMode, isReplayMode, showNewGameConfirm, startAutoFinish, state]);
+
+  useEffect(() => {
+    if (state.status !== 'won' || hasReplayedWin || isReplayMode || isAutoFinishMode) {
       return;
     }
 
     startReplay();
-  }, [hasReplayedWin, isReplayMode, startReplay, state.status]);
+  }, [hasReplayedWin, isAutoFinishMode, isReplayMode, startReplay, state.status]);
 
   useEffect(
     () => () => {
+      stopAutoFinish();
       stopReplay();
     },
-    [stopReplay]
+    [stopAutoFinish, stopReplay]
   );
 
   function startNewGame(): void {
+    stopAutoFinish();
     stopReplay();
     const nextState = createInitialGame();
     setSelected(null);
     setFeedback('');
+    setIsAutoFinishMode(false);
     setIsReplayMode(false);
     setHasReplayedWin(false);
     setShowNewGameConfirm(false);
@@ -438,11 +546,12 @@ function App({ initialState }: AppProps) {
     setState(nextState);
   }
 
-  const replayThemeClass = isReplayMode ? 'bg-sky-900 text-sky-50' : 'bg-emerald-900 text-white';
+  const boardThemeClass =
+    isReplayMode || isAutoFinishMode ? 'bg-sky-900 text-sky-50' : 'bg-emerald-900 text-white';
 
   return (
     <main
-      className={`flex h-dvh flex-col overflow-hidden px-2 py-2 md:px-4 md:py-3 ${replayThemeClass}`}
+      className={`flex h-dvh flex-col overflow-hidden px-2 py-2 md:px-4 md:py-3 ${boardThemeClass}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold tracking-tight md:text-3xl">Solitaire</h1>
@@ -475,10 +584,27 @@ function App({ initialState }: AppProps) {
           Replay Mode: fast auto-playback of your winning run.
         </p>
       ) : null}
+      {isAutoFinishMode ? (
+        <p
+          className="mt-2 rounded bg-sky-700/70 px-2 py-1 text-xs text-sky-100 md:text-sm"
+          data-testid="auto-finish-banner"
+        >
+          Auto Finish: moving cards to foundation.
+        </p>
+      ) : null}
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-emerald-200 md:text-sm">
         <p>Selected: {selectionLabel(selected)}</p>
         <p>Moves: {state.moveCount}</p>
-        <p>Status: {isReplayMode ? 'Replay' : state.status === 'won' ? 'Won' : 'In Progress'}</p>
+        <p>
+          Status:{' '}
+          {isReplayMode
+            ? 'Replay'
+            : isAutoFinishMode
+              ? 'Auto Finish'
+              : state.status === 'won'
+                ? 'Won'
+                : 'In Progress'}
+        </p>
       </div>
       {showHotkeys ? (
         <section
@@ -491,6 +617,7 @@ function App({ initialState }: AppProps) {
           <p>`D`: draw from stock (or recycle waste when stock is empty).</p>
           <p>`Enter` / `Space`: auto-move selected source to foundation (if legal).</p>
           <p>After a win, an automatic fast replay starts with a replay theme.</p>
+          <p>Auto finish starts when stock/waste are empty and all tableau cards are revealed.</p>
           <p>`Escape`: clear current selection.</p>
           <p>`?`: toggle this hotkeys help panel.</p>
         </section>

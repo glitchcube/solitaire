@@ -93,6 +93,7 @@ describe('App click-to-move interactions', () => {
   it('supports Enter hotkey to auto-move selected tableau card to foundation when valid', () => {
     const state = baseState();
     state.tableau[0].cards = [makeCard('hearts', 1, true)];
+    state.stock.cards = [makeCard('spades', 9, false)];
 
     render(<App initialState={state} />);
 
