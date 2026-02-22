@@ -37,11 +37,11 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 ## M4 - Static Board UI
 
-- [todo] Build `Card` component with face-up/down styles.
-- [todo] Build `Pile` component.
-- [todo] Build board sections (tableau, foundations, stock, waste).
-- [todo] Connect UI to `GameState` rendering.
-- [todo] Test render states (face-up/down, pile counts).
+- [done] Build `Card` component with face-up/down styles.
+- [done] Build `Pile` component.
+- [done] Build board sections (tableau, foundations, stock, waste).
+- [done] Connect UI to `GameState` rendering.
+- [done] Test render states (face-up/down, pile counts).
 
 ## M5 - Click-to-Move
 
