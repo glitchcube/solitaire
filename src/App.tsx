@@ -23,6 +23,15 @@ type AppProps = {
 
 const REPLAY_STEP_MS = 140;
 const AUTO_FINISH_STEP_MS = 90;
+const SAVED_REPLAYS_KEY = 'solitaire.saved-replays.v1';
+const MAX_SAVED_REPLAYS = 10;
+
+type SavedReplay = {
+  id: string;
+  createdAt: string;
+  moveCount: number;
+  frames: GameState[];
+};
 
 function isSameLocation(a: Location | null, b: Location): boolean {
   return a?.pileKind === b.pileKind && a?.pileIndex === b.pileIndex && a?.cardIndex === b.cardIndex;
@@ -138,15 +147,47 @@ function findNextAutoFoundationMove(state: GameState): Move | null {
   return null;
 }
 
+function loadSavedReplays(): SavedReplay[] {
+  try {
+    const raw = window.localStorage.getItem(SAVED_REPLAYS_KEY);
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw) as SavedReplay[];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter(
+      (entry) =>
+        Boolean(entry?.id) &&
+        typeof entry?.createdAt === 'string' &&
+        typeof entry?.moveCount === 'number' &&
+        Array.isArray(entry?.frames) &&
+        entry.frames.length >= 2
+    );
+  } catch {
+    return [];
+  }
+}
+
+function saveSavedReplays(entries: SavedReplay[]): void {
+  window.localStorage.setItem(SAVED_REPLAYS_KEY, JSON.stringify(entries));
+}
+
 function App({ initialState }: AppProps) {
   const [state, setState] = useState<GameState>(() => initialState ?? createInitialGame());
   const [selected, setSelected] = useState<Location | null>(null);
   const [activeDrag, setActiveDrag] = useState<Location | null>(null);
   const [showHotkeys, setShowHotkeys] = useState(false);
+  const [showSavedReplays, setShowSavedReplays] = useState(false);
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [isReplayMode, setIsReplayMode] = useState(false);
   const [isAutoFinishMode, setIsAutoFinishMode] = useState(false);
   const [hasReplayedWin, setHasReplayedWin] = useState(false);
+  const [hasSavedCurrentWinReplay, setHasSavedCurrentWinReplay] = useState(false);
+  const [savedReplays, setSavedReplays] = useState<SavedReplay[]>([]);
   const [feedback, setFeedback] = useState<string>('');
   const historyRef = useRef<GameState[]>([state]);
   const stateRef = useRef(state);
@@ -452,38 +493,70 @@ function App({ initialState }: AppProps) {
     }
   }, []);
 
-  const startReplay = useCallback((): void => {
-    const frames = historyRef.current;
-    if (frames.length < 2) {
-      setHasReplayedWin(true);
-      return;
-    }
-
-    stopReplay();
-    setHasReplayedWin(true);
-    setIsReplayMode(true);
-    setSelected(null);
-    setFeedback('');
-
-    let frameIndex = 0;
-    setState(frames[0]);
-
-    replayTimerRef.current = window.setInterval(() => {
-      frameIndex += 1;
-
-      if (frameIndex >= frames.length) {
-        stopReplay();
-        setIsReplayMode(false);
+  const startReplay = useCallback(
+    (frames: GameState[]): void => {
+      if (frames.length < 2) {
+        setHasReplayedWin(true);
         return;
       }
 
-      setState(frames[frameIndex]);
-    }, REPLAY_STEP_MS);
-  }, [stopReplay]);
+      stopReplay();
+      setHasReplayedWin(true);
+      setIsReplayMode(true);
+      setSelected(null);
+      setFeedback('');
+
+      let frameIndex = 0;
+      setState(frames[0]);
+
+      replayTimerRef.current = window.setInterval(() => {
+        frameIndex += 1;
+
+        if (frameIndex >= frames.length) {
+          stopReplay();
+          setIsReplayMode(false);
+          return;
+        }
+
+        setState(frames[frameIndex]);
+      }, REPLAY_STEP_MS);
+    },
+    [stopReplay]
+  );
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useEffect(() => {
+    setSavedReplays(loadSavedReplays());
+  }, []);
+
+  useEffect(() => {
+    if (state.status !== 'won' || isReplayMode || isAutoFinishMode || hasSavedCurrentWinReplay) {
+      return;
+    }
+
+    const existingFrames = historyRef.current;
+    const frames =
+      existingFrames[existingFrames.length - 1] === state
+        ? existingFrames
+        : [...existingFrames, state];
+    if (frames.length < 2) {
+      return;
+    }
+
+    const nextEntry: SavedReplay = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      createdAt: new Date().toISOString(),
+      moveCount: state.moveCount,
+      frames
+    };
+    const nextSaved = [nextEntry, ...savedReplays].slice(0, MAX_SAVED_REPLAYS);
+    saveSavedReplays(nextSaved);
+    setSavedReplays(nextSaved);
+    setHasSavedCurrentWinReplay(true);
+  }, [hasSavedCurrentWinReplay, isAutoFinishMode, isReplayMode, savedReplays, state]);
 
   useEffect(() => {
     if (isReplayMode || isAutoFinishMode) {
@@ -521,7 +594,7 @@ function App({ initialState }: AppProps) {
       return;
     }
 
-    startReplay();
+    startReplay(historyRef.current);
   }, [hasReplayedWin, isAutoFinishMode, isReplayMode, startReplay, state.status]);
 
   useEffect(
@@ -541,9 +614,32 @@ function App({ initialState }: AppProps) {
     setIsAutoFinishMode(false);
     setIsReplayMode(false);
     setHasReplayedWin(false);
+    setHasSavedCurrentWinReplay(false);
     setShowNewGameConfirm(false);
     historyRef.current = [nextState];
     setState(nextState);
+  }
+
+  function handleReplaySavedRun(replayId: string): void {
+    const replay = savedReplays.find((entry) => entry.id === replayId);
+    if (!replay) {
+      return;
+    }
+
+    stopAutoFinish();
+    stopReplay();
+    setShowSavedReplays(false);
+    setShowNewGameConfirm(false);
+    setHasReplayedWin(true);
+    setHasSavedCurrentWinReplay(true);
+    setIsAutoFinishMode(false);
+    startReplay(replay.frames);
+  }
+
+  function handleClearSavedReplays(): void {
+    saveSavedReplays([]);
+    setSavedReplays([]);
+    setFeedback('');
   }
 
   const boardThemeClass =
@@ -563,6 +659,14 @@ function App({ initialState }: AppProps) {
             onClick={() => setShowHotkeys((current) => !current)}
           >
             ?
+          </button>
+          <button
+            type="button"
+            aria-label="Toggle saved replays"
+            className="rounded-md border border-emerald-100/70 px-2 py-1 text-xs font-semibold text-emerald-50 hover:bg-emerald-800 md:px-3 md:py-2 md:text-sm"
+            onClick={() => setShowSavedReplays((current) => !current)}
+          >
+            Replays ({savedReplays.length})
           </button>
           <button
             type="button"
@@ -620,6 +724,44 @@ function App({ initialState }: AppProps) {
           <p>Auto finish starts when stock/waste are empty and all tableau cards are revealed.</p>
           <p>`Escape`: clear current selection.</p>
           <p>`?`: toggle this hotkeys help panel.</p>
+        </section>
+      ) : null}
+      {showSavedReplays ? (
+        <section
+          className="mt-2 rounded-md border border-emerald-300/60 bg-emerald-800/60 px-2 py-2 text-xs text-emerald-50 md:px-3 md:text-sm"
+          data-testid="saved-replays-panel"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-semibold">Saved Replays</p>
+            <button
+              type="button"
+              className="rounded-md border border-emerald-200/70 px-2 py-1 text-[11px] font-semibold hover:bg-emerald-700 md:text-xs"
+              onClick={handleClearSavedReplays}
+              disabled={savedReplays.length === 0}
+            >
+              Clear
+            </button>
+          </div>
+          {savedReplays.length === 0 ? (
+            <p className="mt-2 text-emerald-200">No saved replays yet.</p>
+          ) : (
+            <ul className="mt-2 space-y-1">
+              {savedReplays.map((entry, index) => (
+                <li key={entry.id} className="flex items-center justify-between gap-2">
+                  <span className="text-emerald-100">
+                    #{savedReplays.length - index} · {entry.moveCount} moves
+                  </span>
+                  <button
+                    type="button"
+                    className="rounded-md bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-950 hover:bg-emerald-200 md:text-xs"
+                    onClick={() => handleReplaySavedRun(entry.id)}
+                  >
+                    Replay
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       ) : null}
       {feedback ? (

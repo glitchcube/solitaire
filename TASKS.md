@@ -88,7 +88,7 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 - [todo] Bug: Auto-foundation hotkey (`Enter`/`Space`) should move the top card of a selected tableau run to foundation when legal (example: foundation has `A♣`, tableau has `4♣ 3♥ 2♣`, pressing hotkey should move `2♣`).
 - [done] Add confirmation dialog before starting a New Game to prevent accidental reset.
-- [todo] Feature: Save completed replay history so players can replay past wins later.
+- [done] Feature: Save completed replay history so players can replay past wins later.
 - [done] Add endgame auto-finish when stock/waste are empty and all tableau cards are revealed: automatically move legal cards to foundations step-by-step at fast speed, and stop safely when no legal foundation move remains.
 
 ## Ongoing Rules
