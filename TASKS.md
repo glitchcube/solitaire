@@ -87,7 +87,7 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 ## M10 - Backlog (Reported Bugs + Requested Features)
 
 - [todo] Bug: Auto-foundation hotkey (`Enter`/`Space`) should move the top card of a selected tableau run to foundation when legal (example: foundation has `A♣`, tableau has `4♣ 3♥ 2♣`, pressing hotkey should move `2♣`).
-- [todo] Add confirmation dialog before starting a New Game to prevent accidental reset.
+- [done] Add confirmation dialog before starting a New Game to prevent accidental reset.
 - [todo] Feature: Save completed replay history so players can replay past wins later.
 - [todo] Investigate/validate endgame auto-finish condition (stock empty, waste empty, no face-down cards). If always solvable/won at that point, add automatic fast animation moving cards to foundations step-by-step.
 

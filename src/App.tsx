@@ -102,6 +102,7 @@ function App({ initialState }: AppProps) {
   const [selected, setSelected] = useState<Location | null>(null);
   const [activeDrag, setActiveDrag] = useState<Location | null>(null);
   const [showHotkeys, setShowHotkeys] = useState(false);
+  const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [isReplayMode, setIsReplayMode] = useState(false);
   const [hasReplayedWin, setHasReplayedWin] = useState(false);
   const [feedback, setFeedback] = useState<string>('');
@@ -425,13 +426,14 @@ function App({ initialState }: AppProps) {
     [stopReplay]
   );
 
-  function handleNewGame(): void {
+  function startNewGame(): void {
     stopReplay();
     const nextState = createInitialGame();
     setSelected(null);
     setFeedback('');
     setIsReplayMode(false);
     setHasReplayedWin(false);
+    setShowNewGameConfirm(false);
     historyRef.current = [nextState];
     setState(nextState);
   }
@@ -456,7 +458,7 @@ function App({ initialState }: AppProps) {
           <button
             type="button"
             className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-950 hover:bg-emerald-200 md:px-3 md:py-2 md:text-sm"
-            onClick={handleNewGame}
+            onClick={() => setShowNewGameConfirm(true)}
           >
             New Game
           </button>
@@ -500,6 +502,37 @@ function App({ initialState }: AppProps) {
         >
           {feedback}
         </p>
+      ) : null}
+      {showNewGameConfirm ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/60 p-4">
+          <div
+            className="w-full max-w-sm rounded-md border border-amber-200/70 bg-emerald-800 px-4 py-4 text-sm text-amber-50 shadow-xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label="New game confirmation"
+          >
+            <p className="font-semibold">Start a new game?</p>
+            <p className="mt-1 text-xs text-amber-100 md:text-sm">
+              Your current progress will be lost.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                className="rounded-md border border-amber-200/80 px-3 py-1 text-xs font-semibold text-amber-50 hover:bg-emerald-700 md:text-sm"
+                onClick={() => setShowNewGameConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="rounded-md bg-amber-200 px-3 py-1 text-xs font-semibold text-emerald-950 hover:bg-amber-300 md:text-sm"
+                onClick={startNewGame}
+              >
+                Start New Game
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
       <DndContext
         sensors={sensors}

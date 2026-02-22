@@ -178,10 +178,32 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'New Game' }));
+    expect(screen.getByRole('dialog', { name: 'New game confirmation' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Start New Game' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 0')).toBeInTheDocument();
     expect(screen.getByText('Stock (24)')).toBeInTheDocument();
+  });
+
+  it('keeps current game when new game confirmation is cancelled', () => {
+    const state = baseState();
+    state.tableau[0].cards = [makeCard('hearts', 7, true)];
+    state.tableau[1].cards = [makeCard('diamonds', 8, true)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.click(screen.getByText('7♥'));
+    fireEvent.click(screen.getByTestId('pile-tableau-1'));
+    expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
+
+    fireEvent.click(screen.getByRole('button', { name: 'New Game' }));
+    expect(screen.getByRole('dialog', { name: 'New game confirmation' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
+    expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();
+    expect(screen.getByText('Stock (0)')).toBeInTheDocument();
   });
 });
