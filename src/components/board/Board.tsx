@@ -10,8 +10,11 @@ type BoardProps = {
 
 export function Board({ state, selected = null, onCardClick, onPileClick }: BoardProps) {
   return (
-    <div className="mt-6 space-y-6" data-testid="board-root">
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-6">
+    <div
+      className="mt-2 flex min-h-0 flex-1 flex-col gap-2 md:mt-3 md:gap-3"
+      data-testid="board-root"
+    >
+      <section className="grid grid-cols-6 gap-1 md:gap-2">
         <PileView
           pile={state.stock}
           title="Stock"
@@ -39,7 +42,7 @@ export function Board({ state, selected = null, onCardClick, onPileClick }: Boar
         ))}
       </section>
 
-      <section className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
+      <section className="grid min-h-0 flex-1 grid-cols-7 gap-1 md:gap-2">
         {state.tableau.map((pile, index) => (
           <PileView
             key={`tableau-${index}`}

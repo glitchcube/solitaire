@@ -153,27 +153,30 @@ function App({ initialState }: AppProps) {
   }
 
   return (
-    <main className="min-h-screen bg-emerald-900 p-6 text-white">
+    <main className="flex h-dvh flex-col overflow-hidden bg-emerald-900 px-2 py-2 text-white md:px-4 md:py-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight">Solitaire</h1>
+        <h1 className="text-xl font-semibold tracking-tight md:text-3xl">Solitaire</h1>
         <button
           type="button"
-          className="rounded-md bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-200"
+          className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-950 hover:bg-emerald-200 md:px-3 md:py-2 md:text-sm"
           onClick={handleNewGame}
         >
           New Game
         </button>
       </div>
-      <p className="mt-2 text-emerald-100">
+      <p className="mt-1 text-xs text-emerald-100 md:mt-2 md:text-base">
         Click or drag cards to move them to tableau/foundation piles.
       </p>
-      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-emerald-200">
+      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-emerald-200 md:text-sm">
         <p>Selected: {selectionLabel(selected)}</p>
         <p>Moves: {state.moveCount}</p>
         <p>Status: {state.status === 'won' ? 'Won' : 'In Progress'}</p>
       </div>
       {feedback ? (
-        <p className="mt-2 rounded bg-rose-900/60 px-3 py-2 text-sm text-rose-100" role="alert">
+        <p
+          className="mt-2 rounded bg-rose-900/60 px-2 py-1 text-xs text-rose-100 md:px-3 md:py-2 md:text-sm"
+          role="alert"
+        >
           {feedback}
         </p>
       ) : null}

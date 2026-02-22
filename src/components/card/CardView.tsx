@@ -42,6 +42,7 @@ export function CardView({
 }: CardViewProps) {
   const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
   const ringClass = isSelected ? 'ring-2 ring-amber-300 ring-offset-2 ring-offset-emerald-900' : '';
+  const baseClass = `h-[var(--card-h)] w-[var(--card-w)] rounded-md p-1 text-left shadow ${ringClass}`;
 
   if (!card.faceUp) {
     return (
@@ -50,7 +51,7 @@ export function CardView({
         data-testid={`card-${card.id}`}
         data-face-up="false"
         data-draggable={isDraggable ? 'true' : 'false'}
-        className={`h-24 w-16 rounded-md border border-emerald-700 bg-emerald-800 p-2 text-left shadow ${ringClass}`}
+        className={`${baseClass} border border-emerald-700 bg-emerald-800`}
         onClick={(event) => {
           if (onClick) {
             event.stopPropagation();
@@ -58,7 +59,9 @@ export function CardView({
           onClick?.();
         }}
       >
-        <span className="text-xs font-semibold tracking-wide text-emerald-100">Hidden</span>
+        <span className="text-[10px] font-semibold tracking-wide text-emerald-100 md:text-xs">
+          Hidden
+        </span>
       </button>
     );
   }
@@ -69,7 +72,7 @@ export function CardView({
       data-testid={`card-${card.id}`}
       data-face-up="true"
       data-draggable={isDraggable ? 'true' : 'false'}
-      className={`h-24 w-16 rounded-md border border-slate-300 bg-white p-2 text-left shadow ${ringClass}`}
+      className={`${baseClass} relative border border-slate-300 bg-white`}
       onClick={(event) => {
         if (onClick) {
           event.stopPropagation();
@@ -77,7 +80,9 @@ export function CardView({
         onClick?.();
       }}
     >
-      <span className={`text-sm font-bold ${isRed ? 'text-rose-600' : 'text-slate-800'}`}>
+      <span
+        className={`absolute left-1 top-0.5 text-[11px] font-bold leading-none md:text-sm ${isRed ? 'text-rose-600' : 'text-slate-800'}`}
+      >
         {rankLabel(card.rank)}
         {SUIT_LABEL[card.suit]}
       </span>

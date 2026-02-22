@@ -68,6 +68,20 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 - [done] Add regression test for each fixed bug.
 - [done] Final verification pass of full suite.
 
+## M8 - Classic Layout + Mobile Fit
+
+- [done] Render tableau as stacked/overlapped card columns (classic solitaire look).
+- [done] Tune card dimensions and offsets with responsive CSS variables.
+- [done] Make board fit iPhone-sized viewports without page scrolling.
+- [done] Add regression coverage for stacked tableau rendering.
+
+## M9 - Next Feature Tasks
+
+- [todo] Add win modal/celebration with "Play Again".
+- [todo] Add keyboard accessibility (focus states + Enter/Space move flow).
+- [todo] Add optional undo (single-step then multi-step history).
+- [todo] Add basic score/timer toggle.
+
 ## Ongoing Rules
 
 - [todo] For every bug fixed, add a test in the same PR/commit.

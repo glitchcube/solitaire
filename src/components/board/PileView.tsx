@@ -29,10 +29,22 @@ type DraggableCardProps = {
   location: Location;
   isSelected: boolean;
   canDrag: boolean;
+  style?: CSSProperties;
+  className?: string;
+  testId?: string;
   onClick?: () => void;
 };
 
-function DraggableCard({ card, location, isSelected, canDrag, onClick }: DraggableCardProps) {
+function DraggableCard({
+  card,
+  location,
+  isSelected,
+  canDrag,
+  style: baseStyle,
+  className,
+  testId,
+  onClick
+}: DraggableCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `drag-${card.id}-${location.pileKind}-${location.pileIndex ?? 'none'}-${location.cardIndex ?? 'none'}`,
     data: {
@@ -41,16 +53,21 @@ function DraggableCard({ card, location, isSelected, canDrag, onClick }: Draggab
     disabled: !canDrag
   });
 
-  const style: CSSProperties | undefined = transform
+  const dragStyle: CSSProperties | undefined = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
     : undefined;
+  const mergedStyle: CSSProperties | undefined = baseStyle
+    ? dragStyle
+      ? { ...baseStyle, ...dragStyle }
+      : baseStyle
+    : dragStyle;
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className={isDragging ? 'opacity-60' : undefined}
-      data-testid={`draggable-${card.id}`}
+      style={mergedStyle}
+      className={`${className ?? ''} ${isDragging ? 'opacity-60' : ''}`.trim()}
+      data-testid={testId ?? `draggable-${card.id}`}
       data-draggable={canDrag ? 'true' : 'false'}
       {...attributes}
       {...listeners}
@@ -76,7 +93,7 @@ export function PileView({
       location: pileLocation
     }
   });
-  const pileClass = `${pile.kind === 'tableau' ? 'min-h-36' : ''} rounded-lg bg-emerald-800/50 p-2 ${
+  const pileClass = `${pile.kind === 'tableau' ? 'min-h-0' : ''} rounded-md bg-emerald-800/50 p-1 md:p-2 ${
     isOver ? 'ring-2 ring-cyan-300 ring-offset-2 ring-offset-emerald-900' : ''
   }`;
 
@@ -89,13 +106,20 @@ export function PileView({
         className={pileClass}
         onClick={() => onPileClick?.(pileLocation)}
       >
-        <header className="mb-2 text-xs font-semibold uppercase tracking-wider text-emerald-100">
+        <header className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-100 md:text-xs">
           {title} ({pile.cards.length})
         </header>
         {pile.cards.length === 0 ? (
-          <div className="h-24 w-16 rounded-md border border-dashed border-emerald-200/60" />
+          <div className="h-[var(--card-h)] w-[var(--card-w)] rounded-md border border-dashed border-emerald-200/60" />
         ) : (
-          <div className="space-y-3">
+          <div
+            data-testid={`tableau-stack-${pileId}`}
+            data-stacked="true"
+            className="relative w-[var(--card-w)]"
+            style={{
+              height: `calc(var(--card-h) + ${Math.max(pile.cards.length - 1, 0)} * var(--tableau-step))`
+            }}
+          >
             {pile.cards.map((card, cardIndex) => (
               <DraggableCard
                 key={card.id}
@@ -107,6 +131,12 @@ export function PileView({
                   cardIndex
                 })}
                 canDrag={card.faceUp}
+                testId={`stack-card-${pileId}-${cardIndex}`}
+                className="absolute left-0"
+                style={{
+                  top: `calc(${cardIndex} * var(--tableau-step))`,
+                  zIndex: cardIndex + 1
+                }}
                 onClick={() =>
                   onCardClick?.({
                     pileKind: 'tableau',
@@ -132,7 +162,7 @@ export function PileView({
       className={pileClass}
       onClick={() => onPileClick?.(pileLocation)}
     >
-      <header className="mb-2 text-xs font-semibold uppercase tracking-wider text-emerald-100">
+      <header className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-100 md:text-xs">
         {title} ({pile.cards.length})
       </header>
       {card ? (
@@ -154,7 +184,7 @@ export function PileView({
           }
         />
       ) : (
-        <div className="h-24 w-16 rounded-md border border-dashed border-emerald-200/60" />
+        <div className="h-[var(--card-h)] w-[var(--card-w)] rounded-md border border-dashed border-emerald-200/60" />
       )}
     </section>
   );

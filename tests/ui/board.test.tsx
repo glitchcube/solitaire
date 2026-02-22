@@ -84,4 +84,14 @@ describe('Board', () => {
     expect(screen.getByTestId('pile-stock')).toHaveAttribute('data-droppable', 'false');
     expect(screen.getByTestId('pile-waste')).toHaveAttribute('data-droppable', 'false');
   });
+
+  it('renders tableau cards as stacked columns', () => {
+    render(<Board state={makeState()} />);
+
+    const stack = screen.getByTestId('tableau-stack-tableau-0');
+    const secondCard = screen.getByTestId('stack-card-tableau-0-1');
+
+    expect(stack).toHaveAttribute('data-stacked', 'true');
+    expect(secondCard).toHaveStyle({ top: 'calc(1 * var(--tableau-step))' });
+  });
 });

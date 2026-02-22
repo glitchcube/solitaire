@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 :root {
+  --card-w: 2.35rem;
+  --card-h: 3.4rem;
+  --tableau-step: 0.56rem;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -12,7 +15,30 @@
     sans-serif;
 }
 
+@media (min-width: 640px) {
+  :root {
+    --card-w: 2.9rem;
+    --card-h: 4.1rem;
+    --tableau-step: 0.66rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --card-w: 3.25rem;
+    --card-h: 4.6rem;
+    --tableau-step: 0.76rem;
+  }
+}
+
+html,
 body {
   margin: 0;
-  min-height: 100vh;
+  min-height: 100%;
+}
+
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
 }
