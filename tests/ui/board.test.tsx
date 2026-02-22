@@ -55,7 +55,7 @@ describe('Board', () => {
   it('renders face-down and face-up card states correctly', () => {
     render(<Board state={makeState()} />);
 
-    expect(screen.getAllByText('Hidden')).toHaveLength(2);
+    expect(screen.getAllByTestId(/card-.*-down/)).toHaveLength(2);
     expect(screen.getByText('KH')).toBeInTheDocument();
     expect(screen.queryByText('AC')).not.toBeInTheDocument();
     expect(screen.getByText('AH')).toBeInTheDocument();

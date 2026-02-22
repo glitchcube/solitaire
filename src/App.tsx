@@ -1,7 +1,17 @@
-import { DndContext, PointerSensor, type DragEndEvent, useSensor, useSensors } from '@dnd-kit/core';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  type DragEndEvent,
+  type DragStartEvent,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core';
 import { useState } from 'react';
 import { Board } from './components/board/Board';
 import { createMoveFromDrop } from './components/board/dnd';
+import { getDragPreview } from './components/board/dragPreview';
+import { CardView } from './components/card/CardView';
 import { applyMove, drawFromStock, recycleWasteToStock } from './game/engine';
 import { dealInitialBoard, createDeck, shuffleDeck } from './game/setup';
 import type { GameState, Location, Move, PileKind } from './types/game';
@@ -41,6 +51,7 @@ function createInitialGame(): GameState {
 function App({ initialState }: AppProps) {
   const [state, setState] = useState<GameState>(() => initialState ?? createInitialGame());
   const [selected, setSelected] = useState<Location | null>(null);
+  const [activeDrag, setActiveDrag] = useState<Location | null>(null);
   const [feedback, setFeedback] = useState<string>('');
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -124,10 +135,16 @@ function App({ initialState }: AppProps) {
     });
   }
 
+  function handleDragStart(event: DragStartEvent): void {
+    const activeLocation = (event.active.data.current?.location as Location | undefined) ?? null;
+    setActiveDrag(activeLocation);
+  }
+
   function handleDragEnd(event: DragEndEvent): void {
     const activeLocation = (event.active.data.current?.location as Location | undefined) ?? null;
     const overLocation = (event.over?.data.current?.location as Location | undefined) ?? null;
     const move = createMoveFromDrop(activeLocation, overLocation);
+    setActiveDrag(null);
 
     if (!move) {
       return;
@@ -145,6 +162,8 @@ function App({ initialState }: AppProps) {
       return next;
     });
   }
+
+  const dragPreview = getDragPreview(state, activeDrag);
 
   function handleNewGame(): void {
     setSelected(null);
@@ -180,13 +199,41 @@ function App({ initialState }: AppProps) {
           {feedback}
         </p>
       ) : null}
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveDrag(null)}
+      >
         <Board
           state={state}
           selected={selected}
           onCardClick={handleCardClick}
           onPileClick={handlePileClick}
         />
+        <DragOverlay>
+          {dragPreview ? (
+            <div
+              className="relative w-[var(--card-w)]"
+              style={{
+                height: `calc(var(--card-h) + ${Math.max(dragPreview.cards.length - 1, 0)} * var(--tableau-step))`
+              }}
+            >
+              {dragPreview.cards.map((card, cardIndex) => (
+                <div
+                  key={`${card.id}-overlay`}
+                  className="absolute left-0"
+                  style={{
+                    top: `calc(${cardIndex} * var(--tableau-step))`,
+                    zIndex: cardIndex + 1
+                  }}
+                >
+                  <CardView card={card} isDraggable={false} />
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </main>
   );

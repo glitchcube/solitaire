@@ -1,4 +1,4 @@
-import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { useDndContext, useDraggable, useDroppable } from '@dnd-kit/core';
 import type { CSSProperties } from 'react';
 import type { Card, Location, Pile } from '../../types/game';
 import { CardView } from '../card/CardView';
@@ -32,6 +32,7 @@ type DraggableCardProps = {
   style?: CSSProperties;
   className?: string;
   testId?: string;
+  hidden?: boolean;
   onClick?: () => void;
 };
 
@@ -43,9 +44,10 @@ function DraggableCard({
   style: baseStyle,
   className,
   testId,
+  hidden = false,
   onClick
 }: DraggableCardProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `drag-${card.id}-${location.pileKind}-${location.pileIndex ?? 'none'}-${location.cardIndex ?? 'none'}`,
     data: {
       location
@@ -66,7 +68,7 @@ function DraggableCard({
     <div
       ref={setNodeRef}
       style={mergedStyle}
-      className={`${className ?? ''} ${isDragging ? 'opacity-60' : ''}`.trim()}
+      className={`${className ?? ''} ${hidden ? 'opacity-0 pointer-events-none' : ''}`.trim()}
       data-testid={testId ?? `draggable-${card.id}`}
       data-draggable={canDrag ? 'true' : 'false'}
       {...attributes}
@@ -85,6 +87,7 @@ export function PileView({
   onCardClick,
   onPileClick
 }: PileViewProps) {
+  const { active } = useDndContext();
   const pileId = index === undefined ? pile.kind : `${pile.kind}-${index}`;
   const pileLocation: Location = { pileKind: pile.kind, pileIndex: index };
   const { setNodeRef, isOver } = useDroppable({
@@ -96,6 +99,18 @@ export function PileView({
   const pileClass = `${pile.kind === 'tableau' ? 'min-h-0' : ''} rounded-md bg-emerald-800/50 p-1 md:p-2 ${
     isOver ? 'ring-2 ring-cyan-300 ring-offset-2 ring-offset-emerald-900' : ''
   }`;
+
+  const activeLocation = (active?.data.current?.location as Location | undefined) ?? null;
+
+  function isDraggedTableauSlice(cardIndex: number): boolean {
+    return (
+      pile.kind === 'tableau' &&
+      activeLocation?.pileKind === 'tableau' &&
+      activeLocation?.pileIndex === index &&
+      activeLocation?.cardIndex !== undefined &&
+      cardIndex >= activeLocation.cardIndex
+    );
+  }
 
   if (pile.kind === 'tableau') {
     return (
@@ -133,6 +148,7 @@ export function PileView({
                 canDrag={card.faceUp}
                 testId={`stack-card-${pileId}-${cardIndex}`}
                 className="absolute left-0"
+                hidden={isDraggedTableauSlice(cardIndex)}
                 style={{
                   top: `calc(${cardIndex} * var(--tableau-step))`,
                   zIndex: cardIndex + 1
