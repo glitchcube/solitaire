@@ -30,10 +30,16 @@ function rankLabel(rank: Card['rank']): string {
 type CardViewProps = {
   card: Card;
   isSelected?: boolean;
+  isDraggable?: boolean;
   onClick?: () => void;
 };
 
-export function CardView({ card, isSelected = false, onClick }: CardViewProps) {
+export function CardView({
+  card,
+  isSelected = false,
+  isDraggable = false,
+  onClick
+}: CardViewProps) {
   const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
   const ringClass = isSelected ? 'ring-2 ring-amber-300 ring-offset-2 ring-offset-emerald-900' : '';
 
@@ -43,9 +49,12 @@ export function CardView({ card, isSelected = false, onClick }: CardViewProps) {
         type="button"
         data-testid={`card-${card.id}`}
         data-face-up="false"
+        data-draggable={isDraggable ? 'true' : 'false'}
         className={`h-24 w-16 rounded-md border border-emerald-700 bg-emerald-800 p-2 text-left shadow ${ringClass}`}
         onClick={(event) => {
-          event.stopPropagation();
+          if (onClick) {
+            event.stopPropagation();
+          }
           onClick?.();
         }}
       >
@@ -59,9 +68,12 @@ export function CardView({ card, isSelected = false, onClick }: CardViewProps) {
       type="button"
       data-testid={`card-${card.id}`}
       data-face-up="true"
+      data-draggable={isDraggable ? 'true' : 'false'}
       className={`h-24 w-16 rounded-md border border-slate-300 bg-white p-2 text-left shadow ${ringClass}`}
       onClick={(event) => {
-        event.stopPropagation();
+        if (onClick) {
+          event.stopPropagation();
+        }
         onClick?.();
       }}
     >

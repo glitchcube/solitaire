@@ -70,4 +70,18 @@ describe('Board', () => {
     expect(screen.getByText('Tableau 1 (2)')).toBeInTheDocument();
     expect(screen.getByText('Tableau 3 (0)')).toBeInTheDocument();
   });
+
+  it('marks draggable cards and droppable piles for dnd', () => {
+    render(<Board state={makeState()} />);
+
+    expect(screen.getByTestId('card-hearts-13-up')).toHaveAttribute('data-draggable', 'true');
+    expect(screen.getByTestId('card-spades-5-down')).toHaveAttribute('data-draggable', 'false');
+    expect(screen.getByTestId('card-diamonds-7-down')).toHaveAttribute('data-draggable', 'false');
+    expect(screen.getByTestId('card-clubs-6-up')).toHaveAttribute('data-draggable', 'true');
+
+    expect(screen.getByTestId('pile-tableau-0')).toHaveAttribute('data-droppable', 'true');
+    expect(screen.getByTestId('pile-foundation-0')).toHaveAttribute('data-droppable', 'true');
+    expect(screen.getByTestId('pile-stock')).toHaveAttribute('data-droppable', 'false');
+    expect(screen.getByTestId('pile-waste')).toHaveAttribute('data-droppable', 'false');
+  });
 });

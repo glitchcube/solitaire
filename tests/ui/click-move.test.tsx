@@ -49,7 +49,7 @@ describe('App click-to-move interactions', () => {
     fireEvent.click(screen.getByText('7H'));
     fireEvent.click(screen.getByTestId('pile-tableau-1'));
 
-    expect(screen.getByRole('status')).toHaveTextContent('Invalid move.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
     expect(screen.getByText('Tableau 1 (1)')).toBeInTheDocument();
     expect(screen.getByText('Tableau 2 (1)')).toBeInTheDocument();
   });

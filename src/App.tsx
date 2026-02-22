@@ -1,8 +1,10 @@
+import { DndContext, PointerSensor, type DragEndEvent, useSensor, useSensors } from '@dnd-kit/core';
 import { useMemo, useState } from 'react';
 import { Board } from './components/board/Board';
+import { createMoveFromDrop } from './components/board/dnd';
 import { applyMove, drawFromStock, recycleWasteToStock } from './game/engine';
 import { dealInitialBoard, createDeck, shuffleDeck } from './game/setup';
-import type { GameState, Location, Move } from './types/game';
+import type { GameState, Location, Move, PileKind } from './types/game';
 
 type AppProps = {
   initialState?: GameState;
@@ -28,11 +30,22 @@ function selectionLabel(selection: Location | null): string {
   return `${pile}@${selection.cardIndex}`;
 }
 
+function destinationAllowed(pileKind: PileKind): boolean {
+  return pileKind === 'tableau' || pileKind === 'foundation';
+}
+
 function App({ initialState }: AppProps) {
   const defaultState = useMemo(() => dealInitialBoard(shuffleDeck(createDeck())), []);
   const [state, setState] = useState<GameState>(initialState ?? defaultState);
   const [selected, setSelected] = useState<Location | null>(null);
   const [feedback, setFeedback] = useState<string>('');
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8
+      }
+    })
+  );
 
   function canSelectSource(location: Location): boolean {
     if (location.pileKind === 'tableau') {
@@ -83,7 +96,7 @@ function App({ initialState }: AppProps) {
       return;
     }
 
-    if (destination.pileKind !== 'tableau' && destination.pileKind !== 'foundation') {
+    if (!destinationAllowed(destination.pileKind)) {
       setFeedback('Invalid destination. Choose a tableau or foundation pile.');
       return;
     }
@@ -108,22 +121,46 @@ function App({ initialState }: AppProps) {
     });
   }
 
+  function handleDragEnd(event: DragEndEvent): void {
+    const activeLocation = (event.active.data.current?.location as Location | undefined) ?? null;
+    const overLocation = (event.over?.data.current?.location as Location | undefined) ?? null;
+    const move = createMoveFromDrop(activeLocation, overLocation);
+
+    if (!move) {
+      return;
+    }
+
+    setFeedback('');
+    setState((current) => {
+      const next = applyMove(current, move);
+      if (next === current) {
+        setFeedback('Invalid move.');
+      } else {
+        setSelected(null);
+      }
+
+      return next;
+    });
+  }
+
   return (
     <main className="min-h-screen bg-emerald-900 p-6 text-white">
       <h1 className="text-3xl font-semibold tracking-tight">Solitaire</h1>
       <p className="mt-2 text-emerald-100">Click cards to move them to tableau/foundation piles.</p>
       <p className="mt-1 text-sm text-emerald-200">Selected: {selectionLabel(selected)}</p>
       {feedback ? (
-        <p className="mt-2 rounded bg-rose-900/60 px-3 py-2 text-sm text-rose-100" role="status">
+        <p className="mt-2 rounded bg-rose-900/60 px-3 py-2 text-sm text-rose-100" role="alert">
           {feedback}
         </p>
       ) : null}
-      <Board
-        state={state}
-        selected={selected}
-        onCardClick={handleCardClick}
-        onPileClick={handlePileClick}
-      />
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <Board
+          state={state}
+          selected={selected}
+          onCardClick={handleCardClick}
+          onPileClick={handlePileClick}
+        />
+      </DndContext>
     </main>
   );
 }

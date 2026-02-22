@@ -53,12 +53,12 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 ## M6 - Drag-and-Drop
 
-- [todo] Add `@dnd-kit/core`.
-- [todo] Configure draggable cards and droppable piles.
-- [todo] Support tableau stack dragging.
-- [todo] Highlight valid drop targets.
-- [todo] Keep click-to-move as fallback.
-- [todo] Integration tests for key drag/drop flows.
+- [done] Add `@dnd-kit/core`.
+- [done] Configure draggable cards and droppable piles.
+- [done] Support tableau stack dragging.
+- [done] Highlight valid drop targets.
+- [done] Keep click-to-move as fallback.
+- [done] Integration tests for key drag/drop flows.
 
 ## M7 - Polish + Regression
 
