@@ -68,7 +68,7 @@ function DraggableCard({
     <div
       ref={setNodeRef}
       style={mergedStyle}
-      className={`${className ?? ''} ${hidden ? 'opacity-0 pointer-events-none' : ''}`.trim()}
+      className={`${className ?? ''} touch-none ${hidden ? 'opacity-0 pointer-events-none' : ''}`.trim()}
       data-testid={testId ?? `draggable-${card.id}`}
       data-draggable={canDrag ? 'true' : 'false'}
       {...attributes}

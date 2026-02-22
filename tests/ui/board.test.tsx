@@ -83,6 +83,8 @@ describe('Board', () => {
     expect(screen.getByTestId('pile-foundation-0')).toHaveAttribute('data-droppable', 'true');
     expect(screen.getByTestId('pile-stock')).toHaveAttribute('data-droppable', 'false');
     expect(screen.getByTestId('pile-waste')).toHaveAttribute('data-droppable', 'false');
+
+    expect(screen.getByTestId('stack-card-tableau-0-1')).toHaveClass('touch-none');
   });
 
   it('renders tableau cards as stacked columns', () => {

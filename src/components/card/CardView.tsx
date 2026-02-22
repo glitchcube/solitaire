@@ -42,7 +42,7 @@ export function CardView({
 }: CardViewProps) {
   const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
   const ringClass = isSelected ? 'ring-2 ring-amber-300 ring-offset-2 ring-offset-emerald-900' : '';
-  const baseClass = `h-[var(--card-h)] w-[var(--card-w)] rounded-md p-1 text-left shadow ${ringClass}`;
+  const baseClass = `h-[var(--card-h)] w-[var(--card-w)] rounded-md p-1 text-left shadow touch-none ${ringClass}`;
 
   if (!card.faceUp) {
     return (
