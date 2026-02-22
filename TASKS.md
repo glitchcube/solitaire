@@ -45,11 +45,11 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 ## M5 - Click-to-Move
 
-- [todo] Implement source selection state.
-- [todo] Implement destination selection handling.
-- [todo] Map UI actions to `Move` model.
-- [todo] Show invalid move feedback.
-- [todo] Interaction tests for legal/illegal click moves.
+- [done] Implement source selection state.
+- [done] Implement destination selection handling.
+- [done] Map UI actions to `Move` model.
+- [done] Show invalid move feedback.
+- [done] Interaction tests for legal/illegal click moves.
 
 ## M6 - Drag-and-Drop
 

@@ -29,33 +29,46 @@ function rankLabel(rank: Card['rank']): string {
 
 type CardViewProps = {
   card: Card;
+  isSelected?: boolean;
+  onClick?: () => void;
 };
 
-export function CardView({ card }: CardViewProps) {
+export function CardView({ card, isSelected = false, onClick }: CardViewProps) {
   const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
+  const ringClass = isSelected ? 'ring-2 ring-amber-300 ring-offset-2 ring-offset-emerald-900' : '';
 
   if (!card.faceUp) {
     return (
-      <article
+      <button
+        type="button"
         data-testid={`card-${card.id}`}
         data-face-up="false"
-        className="h-24 w-16 rounded-md border border-emerald-700 bg-emerald-800 p-2 shadow"
+        className={`h-24 w-16 rounded-md border border-emerald-700 bg-emerald-800 p-2 text-left shadow ${ringClass}`}
+        onClick={(event) => {
+          event.stopPropagation();
+          onClick?.();
+        }}
       >
         <span className="text-xs font-semibold tracking-wide text-emerald-100">Hidden</span>
-      </article>
+      </button>
     );
   }
 
   return (
-    <article
+    <button
+      type="button"
       data-testid={`card-${card.id}`}
       data-face-up="true"
-      className="h-24 w-16 rounded-md border border-slate-300 bg-white p-2 shadow"
+      className={`h-24 w-16 rounded-md border border-slate-300 bg-white p-2 text-left shadow ${ringClass}`}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick?.();
+      }}
     >
       <span className={`text-sm font-bold ${isRed ? 'text-rose-600' : 'text-slate-800'}`}>
         {rankLabel(card.rank)}
         {SUIT_LABEL[card.suit]}
       </span>
-    </article>
+    </button>
   );
 }
