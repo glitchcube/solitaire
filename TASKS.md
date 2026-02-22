@@ -62,11 +62,11 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 ## M7 - Polish + Regression
 
-- [todo] Add "New Game" button.
-- [todo] Add optional move counter.
-- [todo] Fix UX rough edges and visual alignment.
-- [todo] Add regression test for each fixed bug.
-- [todo] Final verification pass of full suite.
+- [done] Add "New Game" button.
+- [done] Add optional move counter.
+- [done] Fix UX rough edges and visual alignment.
+- [done] Add regression test for each fixed bug.
+- [done] Final verification pass of full suite.
 
 ## Ongoing Rules
 

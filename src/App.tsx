@@ -1,5 +1,5 @@
 import { DndContext, PointerSensor, type DragEndEvent, useSensor, useSensors } from '@dnd-kit/core';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Board } from './components/board/Board';
 import { createMoveFromDrop } from './components/board/dnd';
 import { applyMove, drawFromStock, recycleWasteToStock } from './game/engine';
@@ -34,9 +34,12 @@ function destinationAllowed(pileKind: PileKind): boolean {
   return pileKind === 'tableau' || pileKind === 'foundation';
 }
 
+function createInitialGame(): GameState {
+  return dealInitialBoard(shuffleDeck(createDeck()));
+}
+
 function App({ initialState }: AppProps) {
-  const defaultState = useMemo(() => dealInitialBoard(shuffleDeck(createDeck())), []);
-  const [state, setState] = useState<GameState>(initialState ?? defaultState);
+  const [state, setState] = useState<GameState>(() => initialState ?? createInitialGame());
   const [selected, setSelected] = useState<Location | null>(null);
   const [feedback, setFeedback] = useState<string>('');
   const sensors = useSensors(
@@ -143,11 +146,32 @@ function App({ initialState }: AppProps) {
     });
   }
 
+  function handleNewGame(): void {
+    setSelected(null);
+    setFeedback('');
+    setState(createInitialGame());
+  }
+
   return (
     <main className="min-h-screen bg-emerald-900 p-6 text-white">
-      <h1 className="text-3xl font-semibold tracking-tight">Solitaire</h1>
-      <p className="mt-2 text-emerald-100">Click cards to move them to tableau/foundation piles.</p>
-      <p className="mt-1 text-sm text-emerald-200">Selected: {selectionLabel(selected)}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl font-semibold tracking-tight">Solitaire</h1>
+        <button
+          type="button"
+          className="rounded-md bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-200"
+          onClick={handleNewGame}
+        >
+          New Game
+        </button>
+      </div>
+      <p className="mt-2 text-emerald-100">
+        Click or drag cards to move them to tableau/foundation piles.
+      </p>
+      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-emerald-200">
+        <p>Selected: {selectionLabel(selected)}</p>
+        <p>Moves: {state.moveCount}</p>
+        <p>Status: {state.status === 'won' ? 'Won' : 'In Progress'}</p>
+      </div>
       {feedback ? (
         <p className="mt-2 rounded bg-rose-900/60 px-3 py-2 text-sm text-rose-100" role="alert">
           {feedback}

@@ -37,6 +37,7 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
     expect(screen.getByText('Tableau 2 (2)')).toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
 
   it('shows invalid feedback when selected move is illegal', () => {
@@ -52,6 +53,7 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
     expect(screen.getByText('Tableau 1 (1)')).toBeInTheDocument();
     expect(screen.getByText('Tableau 2 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 0')).toBeInTheDocument();
   });
 
   it('draws from stock when stock pile is clicked', () => {
@@ -65,5 +67,25 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('Stock (0)')).toBeInTheDocument();
     expect(screen.getByText('Waste (1)')).toBeInTheDocument();
     expect(screen.getByText('4S')).toBeInTheDocument();
+  });
+
+  it('resets selection, feedback, and counters when starting a new game', () => {
+    const state = baseState();
+    state.tableau[0].cards = [makeCard('hearts', 7, true)];
+    state.tableau[1].cards = [makeCard('diamonds', 8, true)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.click(screen.getByText('7H'));
+    fireEvent.click(screen.getByTestId('pile-tableau-1'));
+    expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
+    expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'New Game' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 0')).toBeInTheDocument();
+    expect(screen.getByText('Stock (24)')).toBeInTheDocument();
   });
 });
