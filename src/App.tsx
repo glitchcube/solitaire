@@ -7,7 +7,7 @@ import {
   useSensor,
   useSensors
 } from '@dnd-kit/core';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Board } from './components/board/Board';
 import { createMoveFromDrop } from './components/board/dnd';
 import { getDragPreview } from './components/board/dragPreview';
@@ -20,6 +20,8 @@ import type { GameState, Location, Move, PileKind } from './types/game';
 type AppProps = {
   initialState?: GameState;
 };
+
+const REPLAY_STEP_MS = 140;
 
 function isSameLocation(a: Location | null, b: Location): boolean {
   return a?.pileKind === b.pileKind && a?.pileIndex === b.pileIndex && a?.cardIndex === b.cardIndex;
@@ -100,7 +102,11 @@ function App({ initialState }: AppProps) {
   const [selected, setSelected] = useState<Location | null>(null);
   const [activeDrag, setActiveDrag] = useState<Location | null>(null);
   const [showHotkeys, setShowHotkeys] = useState(false);
+  const [isReplayMode, setIsReplayMode] = useState(false);
+  const [hasReplayedWin, setHasReplayedWin] = useState(false);
   const [feedback, setFeedback] = useState<string>('');
+  const historyRef = useRef<GameState[]>([state]);
+  const replayTimerRef = useRef<number | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -110,6 +116,10 @@ function App({ initialState }: AppProps) {
   );
 
   function canSelectSource(location: Location): boolean {
+    if (isReplayMode) {
+      return false;
+    }
+
     if (location.pileKind === 'tableau') {
       if (location.pileIndex === undefined || location.cardIndex === undefined) {
         return false;
@@ -137,6 +147,10 @@ function App({ initialState }: AppProps) {
 
   const executeMove = useCallback(
     (move: Move, invalidFeedback: string): boolean => {
+      if (isReplayMode) {
+        return false;
+      }
+
       const next = applyMove(state, move);
       if (next === state) {
         setFeedback(invalidFeedback);
@@ -148,10 +162,14 @@ function App({ initialState }: AppProps) {
       setFeedback('');
       return true;
     },
-    [state]
+    [isReplayMode, state]
   );
 
   function handlePileClick(destination: Location): void {
+    if (isReplayMode) {
+      return;
+    }
+
     setFeedback('');
 
     if (destination.pileKind === 'stock') {
@@ -191,11 +209,19 @@ function App({ initialState }: AppProps) {
   }
 
   function handleDragStart(event: DragStartEvent): void {
+    if (isReplayMode) {
+      return;
+    }
+
     const activeLocation = (event.active.data.current?.location as Location | undefined) ?? null;
     setActiveDrag(activeLocation);
   }
 
   function handleDragEnd(event: DragEndEvent): void {
+    if (isReplayMode) {
+      return;
+    }
+
     const activeLocation = (event.active.data.current?.location as Location | undefined) ?? null;
     const overLocation = (event.over?.data.current?.location as Location | undefined) ?? null;
     const move = createMoveFromDrop(activeLocation, overLocation);
@@ -219,6 +245,10 @@ function App({ initialState }: AppProps) {
       if (key === '?') {
         event.preventDefault();
         setShowHotkeys((current) => !current);
+        return;
+      }
+
+      if (isReplayMode) {
         return;
       }
 
@@ -329,18 +359,89 @@ function App({ initialState }: AppProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [executeMove, selected, state]);
+  }, [executeMove, isReplayMode, selected, state]);
 
   const dragPreview = getDragPreview(state, activeDrag);
 
-  function handleNewGame(): void {
+  const stopReplay = useCallback((): void => {
+    if (replayTimerRef.current !== null) {
+      window.clearInterval(replayTimerRef.current);
+      replayTimerRef.current = null;
+    }
+  }, []);
+
+  const startReplay = useCallback((): void => {
+    const frames = historyRef.current;
+    if (frames.length < 2) {
+      setHasReplayedWin(true);
+      return;
+    }
+
+    stopReplay();
+    setHasReplayedWin(true);
+    setIsReplayMode(true);
     setSelected(null);
     setFeedback('');
-    setState(createInitialGame());
+
+    let frameIndex = 0;
+    setState(frames[0]);
+
+    replayTimerRef.current = window.setInterval(() => {
+      frameIndex += 1;
+
+      if (frameIndex >= frames.length) {
+        stopReplay();
+        setIsReplayMode(false);
+        return;
+      }
+
+      setState(frames[frameIndex]);
+    }, REPLAY_STEP_MS);
+  }, [stopReplay]);
+
+  useEffect(() => {
+    if (isReplayMode) {
+      return;
+    }
+
+    const history = historyRef.current;
+    if (history[history.length - 1] !== state) {
+      history.push(state);
+    }
+  }, [isReplayMode, state]);
+
+  useEffect(() => {
+    if (state.status !== 'won' || hasReplayedWin || isReplayMode) {
+      return;
+    }
+
+    startReplay();
+  }, [hasReplayedWin, isReplayMode, startReplay, state.status]);
+
+  useEffect(
+    () => () => {
+      stopReplay();
+    },
+    [stopReplay]
+  );
+
+  function handleNewGame(): void {
+    stopReplay();
+    const nextState = createInitialGame();
+    setSelected(null);
+    setFeedback('');
+    setIsReplayMode(false);
+    setHasReplayedWin(false);
+    historyRef.current = [nextState];
+    setState(nextState);
   }
 
+  const replayThemeClass = isReplayMode ? 'bg-sky-900 text-sky-50' : 'bg-emerald-900 text-white';
+
   return (
-    <main className="flex h-dvh flex-col overflow-hidden bg-emerald-900 px-2 py-2 text-white md:px-4 md:py-3">
+    <main
+      className={`flex h-dvh flex-col overflow-hidden px-2 py-2 md:px-4 md:py-3 ${replayThemeClass}`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold tracking-tight md:text-3xl">Solitaire</h1>
         <div className="flex items-center gap-2">
@@ -364,10 +465,18 @@ function App({ initialState }: AppProps) {
       <p className="mt-1 text-xs text-emerald-100 md:mt-2 md:text-base">
         Click or drag cards to move them to tableau/foundation piles.
       </p>
+      {isReplayMode ? (
+        <p
+          className="mt-2 rounded bg-sky-700/70 px-2 py-1 text-xs text-sky-100 md:text-sm"
+          data-testid="replay-mode-banner"
+        >
+          Replay Mode: fast auto-playback of your winning run.
+        </p>
+      ) : null}
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-emerald-200 md:text-sm">
         <p>Selected: {selectionLabel(selected)}</p>
         <p>Moves: {state.moveCount}</p>
-        <p>Status: {state.status === 'won' ? 'Won' : 'In Progress'}</p>
+        <p>Status: {isReplayMode ? 'Replay' : state.status === 'won' ? 'Won' : 'In Progress'}</p>
       </div>
       {showHotkeys ? (
         <section
@@ -379,6 +488,7 @@ function App({ initialState }: AppProps) {
           <p>`W`: select/deselect top waste card.</p>
           <p>`D`: draw from stock (or recycle waste when stock is empty).</p>
           <p>`Enter` / `Space`: auto-move selected source to foundation (if legal).</p>
+          <p>After a win, an automatic fast replay starts with a replay theme.</p>
           <p>`Escape`: clear current selection.</p>
           <p>`?`: toggle this hotkeys help panel.</p>
         </section>
