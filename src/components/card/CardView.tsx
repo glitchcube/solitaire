@@ -59,9 +59,7 @@ export function CardView({
           onClick?.();
         }}
       >
-        <span className="text-[10px] font-semibold tracking-wide text-emerald-100 md:text-xs">
-          Hidden
-        </span>
+        <span className="text-[10px] font-semibold tracking-wide text-emerald-100 md:text-xs" />
       </button>
     );
   }

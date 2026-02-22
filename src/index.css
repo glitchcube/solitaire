@@ -5,7 +5,7 @@
 :root {
   --card-w: 2.35rem;
   --card-h: 3.4rem;
-  --tableau-step: 0.56rem;
+  --tableau-step: 1.08rem;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -19,7 +19,7 @@
   :root {
     --card-w: 2.9rem;
     --card-h: 4.1rem;
-    --tableau-step: 0.66rem;
+    --tableau-step: 0.98rem;
   }
 }
 
@@ -27,7 +27,7 @@
   :root {
     --card-w: 3.25rem;
     --card-h: 4.6rem;
-    --tableau-step: 0.76rem;
+    --tableau-step: 1.28rem;
   }
 }
 

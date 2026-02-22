@@ -158,7 +158,7 @@ export function PileView({
     <section
       ref={setNodeRef}
       data-testid={`pile-${pileId}`}
-      data-droppable={pile.kind === 'tableau' || pile.kind === 'foundation' ? 'true' : 'false'}
+      data-droppable={pile.kind === 'foundation' ? 'true' : 'false'}
       className={pileClass}
       onClick={() => onPileClick?.(pileLocation)}
     >
