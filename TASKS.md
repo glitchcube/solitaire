@@ -78,7 +78,9 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 ## M9 - Next Feature Tasks
 
 - [todo] Add win modal/celebration with "Play Again".
-- [todo] Add keyboard accessibility (focus states + Enter/Space move flow).
+- [done] Add keyboard accessibility (focus states + Enter/Space move flow).
+- [done] Add power-user hotkeys for fast play (select source, cycle/select destinations, confirm move, cancel selection) including multi-card tableau stacks.
+- [todo] Add a post-win replay mode with stable fast playback speed and a distinct "replay" visual theme so it is clear the board is auto-playing history.
 - [todo] Add optional undo (single-step then multi-step history).
 - [todo] Add basic score/timer toggle.
 

@@ -1,5 +1,5 @@
 import { useDndContext, useDraggable, useDroppable } from '@dnd-kit/core';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, KeyboardEvent } from 'react';
 import type { Card, Location, Pile } from '../../types/game';
 import { CardView } from '../card/CardView';
 
@@ -22,6 +22,10 @@ function isSelected(selected: Location | null | undefined, location: Location): 
     selected?.pileIndex === location.pileIndex &&
     selected?.cardIndex === location.cardIndex
   );
+}
+
+function isActivationKey(key: string): boolean {
+  return key === 'Enter' || key === ' ';
 }
 
 type DraggableCardProps = {
@@ -98,7 +102,7 @@ export function PileView({
   });
   const pileClass = `${pile.kind === 'tableau' ? 'min-h-0' : ''} rounded-md bg-emerald-800/50 p-1 md:p-2 ${
     isOver ? 'ring-2 ring-cyan-300 ring-offset-2 ring-offset-emerald-900' : ''
-  }`;
+  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900`;
 
   const activeLocation = (active?.data.current?.location as Location | undefined) ?? null;
 
@@ -112,6 +116,15 @@ export function PileView({
     );
   }
 
+  function handlePileKeyDown(event: KeyboardEvent<HTMLElement>): void {
+    if (!isActivationKey(event.key)) {
+      return;
+    }
+
+    event.preventDefault();
+    onPileClick?.(pileLocation);
+  }
+
   if (pile.kind === 'tableau') {
     return (
       <section
@@ -119,7 +132,11 @@ export function PileView({
         data-testid={`pile-${pileId}`}
         data-droppable="true"
         className={pileClass}
+        tabIndex={0}
+        role="button"
+        aria-label={`${title} pile`}
         onClick={() => onPileClick?.(pileLocation)}
+        onKeyDown={handlePileKeyDown}
       >
         <header className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-100 md:text-xs">
           {title} ({pile.cards.length})
@@ -176,7 +193,11 @@ export function PileView({
       data-testid={`pile-${pileId}`}
       data-droppable={pile.kind === 'foundation' ? 'true' : 'false'}
       className={pileClass}
+      tabIndex={0}
+      role="button"
+      aria-label={`${title} pile`}
       onClick={() => onPileClick?.(pileLocation)}
+      onKeyDown={handlePileKeyDown}
     >
       <header className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-100 md:text-xs">
         {title} ({pile.cards.length})

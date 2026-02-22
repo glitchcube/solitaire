@@ -40,6 +40,89 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
 
+  it('moves selected card to destination pile with Enter key', () => {
+    const state = baseState();
+    state.tableau[0].cards = [makeCard('hearts', 7, true)];
+    state.tableau[1].cards = [makeCard('clubs', 8, true)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.click(screen.getByText('7H'));
+    fireEvent.keyDown(screen.getByTestId('pile-tableau-1'), { key: 'Enter' });
+
+    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Tableau 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+  });
+
+  it('moves selected card to destination pile with Space key', () => {
+    const state = baseState();
+    state.tableau[0].cards = [makeCard('hearts', 7, true)];
+    state.tableau[1].cards = [makeCard('clubs', 8, true)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.click(screen.getByText('7H'));
+    fireEvent.keyDown(screen.getByTestId('pile-tableau-1'), { key: ' ' });
+
+    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Tableau 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+  });
+
+  it('supports number hotkeys for selecting and moving between tableau columns', () => {
+    const state = baseState();
+    state.tableau[0].cards = [makeCard('hearts', 7, true)];
+    state.tableau[1].cards = [makeCard('clubs', 8, true)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.keyDown(window, { key: '1' });
+    expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: '2' });
+
+    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Tableau 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+  });
+
+  it('supports Enter hotkey to auto-move selected tableau card to foundation when valid', () => {
+    const state = baseState();
+    state.tableau[0].cards = [makeCard('hearts', 1, true)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.keyDown(window, { key: '1' });
+    fireEvent.keyDown(window, { key: 'Enter' });
+
+    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+  });
+
+  it('supports W hotkey to select waste and move to tableau via number hotkey', () => {
+    const state = baseState();
+    state.waste.cards = [makeCard('hearts', 7, true)];
+    state.tableau[0].cards = [makeCard('clubs', 8, true)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.keyDown(window, { key: 'w' });
+    expect(screen.getByText('Selected: waste@0')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: '1' });
+
+    expect(screen.getByText('Waste (0)')).toBeInTheDocument();
+    expect(screen.getByText('Tableau 1 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+  });
+
   it('shows invalid feedback when selected move is illegal', () => {
     const state = baseState();
     state.tableau[0].cards = [makeCard('hearts', 7, true)];
@@ -63,6 +146,19 @@ describe('App click-to-move interactions', () => {
     render(<App initialState={state} />);
 
     fireEvent.click(screen.getByTestId('pile-stock'));
+
+    expect(screen.getByText('Stock (0)')).toBeInTheDocument();
+    expect(screen.getByText('Waste (1)')).toBeInTheDocument();
+    expect(screen.getByText('4S')).toBeInTheDocument();
+  });
+
+  it('draws from stock with D hotkey', () => {
+    const state = baseState();
+    state.stock.cards = [makeCard('spades', 4, false)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.keyDown(window, { key: 'd' });
 
     expect(screen.getByText('Stock (0)')).toBeInTheDocument();
     expect(screen.getByText('Waste (1)')).toBeInTheDocument();
