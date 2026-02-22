@@ -56,9 +56,9 @@ describe('Board', () => {
     render(<Board state={makeState()} />);
 
     expect(screen.getAllByTestId(/card-.*-down/)).toHaveLength(2);
-    expect(screen.getByText('KH')).toBeInTheDocument();
-    expect(screen.queryByText('AC')).not.toBeInTheDocument();
-    expect(screen.getByText('AH')).toBeInTheDocument();
+    expect(screen.getByText('K♥')).toBeInTheDocument();
+    expect(screen.queryByText('A♣')).not.toBeInTheDocument();
+    expect(screen.getByText('A♥')).toBeInTheDocument();
   });
 
   it('shows pile counts in section headers', () => {

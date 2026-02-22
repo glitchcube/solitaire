@@ -31,7 +31,7 @@ describe('App click-to-move interactions', () => {
 
     render(<App initialState={state} />);
 
-    fireEvent.click(screen.getByText('7H'));
+    fireEvent.click(screen.getByText('7♥'));
     fireEvent.click(screen.getByTestId('pile-tableau-1'));
 
     expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe('App click-to-move interactions', () => {
 
     render(<App initialState={state} />);
 
-    fireEvent.click(screen.getByText('7H'));
+    fireEvent.click(screen.getByText('7♥'));
     fireEvent.keyDown(screen.getByTestId('pile-tableau-1'), { key: 'Enter' });
 
     expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('App click-to-move interactions', () => {
 
     render(<App initialState={state} />);
 
-    fireEvent.click(screen.getByText('7H'));
+    fireEvent.click(screen.getByText('7♥'));
     fireEvent.keyDown(screen.getByTestId('pile-tableau-1'), { key: ' ' });
 
     expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
@@ -130,7 +130,7 @@ describe('App click-to-move interactions', () => {
 
     render(<App initialState={state} />);
 
-    fireEvent.click(screen.getByText('7H'));
+    fireEvent.click(screen.getByText('7♥'));
     fireEvent.click(screen.getByTestId('pile-tableau-1'));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
@@ -149,7 +149,7 @@ describe('App click-to-move interactions', () => {
 
     expect(screen.getByText('Stock (0)')).toBeInTheDocument();
     expect(screen.getByText('Waste (1)')).toBeInTheDocument();
-    expect(screen.getByText('4S')).toBeInTheDocument();
+    expect(screen.getByText('4♠')).toBeInTheDocument();
   });
 
   it('draws from stock with D hotkey', () => {
@@ -162,7 +162,7 @@ describe('App click-to-move interactions', () => {
 
     expect(screen.getByText('Stock (0)')).toBeInTheDocument();
     expect(screen.getByText('Waste (1)')).toBeInTheDocument();
-    expect(screen.getByText('4S')).toBeInTheDocument();
+    expect(screen.getByText('4♠')).toBeInTheDocument();
   });
 
   it('resets selection, feedback, and counters when starting a new game', () => {
@@ -172,7 +172,7 @@ describe('App click-to-move interactions', () => {
 
     render(<App initialState={state} />);
 
-    fireEvent.click(screen.getByText('7H'));
+    fireEvent.click(screen.getByText('7♥'));
     fireEvent.click(screen.getByTestId('pile-tableau-1'));
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
     expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();

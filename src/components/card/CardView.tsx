@@ -1,10 +1,10 @@
 import type { Card } from '../../types/game';
 
-const SUIT_LABEL: Record<Card['suit'], string> = {
-  clubs: 'C',
-  diamonds: 'D',
-  hearts: 'H',
-  spades: 'S'
+const SUIT_SYMBOL: Record<Card['suit'], string> = {
+  clubs: '♣',
+  diamonds: '♦',
+  hearts: '♥',
+  spades: '♠'
 };
 
 function rankLabel(rank: Card['rank']): string {
@@ -27,6 +27,26 @@ function rankLabel(rank: Card['rank']): string {
   return `${rank}`;
 }
 
+function rankName(rank: Card['rank']): string {
+  if (rank === 1) {
+    return 'Ace';
+  }
+
+  if (rank === 11) {
+    return 'Jack';
+  }
+
+  if (rank === 12) {
+    return 'Queen';
+  }
+
+  if (rank === 13) {
+    return 'King';
+  }
+
+  return `${rank}`;
+}
+
 type CardViewProps = {
   card: Card;
   isSelected?: boolean;
@@ -43,11 +63,13 @@ export function CardView({
   const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
   const ringClass = isSelected ? 'ring-2 ring-amber-300 ring-offset-2 ring-offset-emerald-900' : '';
   const baseClass = `h-[var(--card-h)] w-[var(--card-w)] rounded-md p-1 text-left shadow touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900 ${ringClass}`;
+  const cardTitle = `${rankName(card.rank)} of ${card.suit}`;
 
   if (!card.faceUp) {
     return (
       <button
         type="button"
+        aria-label="Face-down card"
         data-testid={`card-${card.id}`}
         data-face-up="false"
         data-draggable={isDraggable ? 'true' : 'false'}
@@ -67,6 +89,8 @@ export function CardView({
   return (
     <button
       type="button"
+      aria-label={cardTitle}
+      title={cardTitle}
       data-testid={`card-${card.id}`}
       data-face-up="true"
       data-draggable={isDraggable ? 'true' : 'false'}
@@ -82,7 +106,7 @@ export function CardView({
         className={`absolute left-1 top-0.5 text-[11px] font-bold leading-none md:text-sm ${isRed ? 'text-rose-600' : 'text-slate-800'}`}
       >
         {rankLabel(card.rank)}
-        {SUIT_LABEL[card.suit]}
+        {SUIT_SYMBOL[card.suit]}
       </span>
     </button>
   );
