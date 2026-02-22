@@ -25,15 +25,15 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 ## M3 - Move Validation + Engine
 
-- [todo] Implement `isValidTableauToTableauMove()`.
-- [todo] Implement `isValidToFoundationMove()`.
-- [todo] Implement `isValidWasteMoves()`.
-- [todo] Implement `drawFromStock()` and `recycleWasteToStock()`.
-- [todo] Implement `applyMove()` immutable state updates.
-- [todo] Implement auto-flip for exposed tableau cards.
-- [todo] Implement `isWinState()`.
-- [todo] Tests for valid + invalid scenarios across all move types.
-- [todo] Tests for edge cases (empty tableau king-only, empty stock recycle).
+- [done] Implement `isValidTableauToTableauMove()`.
+- [done] Implement `isValidToFoundationMove()`.
+- [done] Implement `isValidWasteMoves()`.
+- [done] Implement `drawFromStock()` and `recycleWasteToStock()`.
+- [done] Implement `applyMove()` immutable state updates.
+- [done] Implement auto-flip for exposed tableau cards.
+- [done] Implement `isWinState()`.
+- [done] Tests for valid + invalid scenarios across all move types.
+- [done] Tests for edge cases (empty tableau king-only, empty stock recycle).
 
 ## M4 - Static Board UI
 
