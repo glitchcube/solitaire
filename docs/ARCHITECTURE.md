@@ -94,13 +94,16 @@ type GameState = {
 ## Testing Strategy
 
 1. Unit tests (highest priority)
+
 - Pure game logic (`setup`, `rules`, `engine`).
 
 2. Component behavior tests
+
 - Card/pile rendering states.
 - Click-to-move interactions.
 
 3. Drag/drop integration tests
+
 - Verify move intent and result mapping.
 
 ## Initial Move Model

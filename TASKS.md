@@ -1,16 +1,16 @@
 # Task List
 
-Status legend: `[todo]`, `[in-progress]`, `[done]`
+Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 ## M1 - Project Setup + Test Harness
 
-- [todo] Initialize React + TypeScript + Vite project.
-- [todo] Add and configure Tailwind CSS.
-- [todo] Add Vitest + React Testing Library.
-- [todo] Add ESLint and Prettier.
-- [todo] Create base folder structure under `src/` and `tests/`.
-- [todo] Add baseline app render test.
-- [todo] Verify: app runs + tests pass.
+- [done] Initialize React + TypeScript + Vite project.
+- [done] Add and configure Tailwind CSS.
+- [done] Add Vitest + React Testing Library.
+- [done] Add ESLint and Prettier.
+- [done] Create base folder structure under `src/` and `tests/`.
+- [done] Add baseline app render test.
+- [done] Verify: app runs + tests pass. (Dependency install currently blocked by network access to npm registry.)
 
 ## M2 - Deck + Initial Deal Logic
 
