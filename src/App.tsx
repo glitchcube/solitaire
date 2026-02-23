@@ -269,6 +269,34 @@ function App({ initialState }: AppProps) {
     setSelected((current) => (isSameLocation(current, location) ? null : location));
   }
 
+  function handleCardDoubleClick(location: Location): void {
+    if (!canSelectSource(location)) {
+      return;
+    }
+
+    for (
+      let foundationIndex = 0;
+      foundationIndex < state.foundations.length;
+      foundationIndex += 1
+    ) {
+      if (!isValidToFoundationMove(state, location, foundationIndex)) {
+        continue;
+      }
+
+      executeMove(
+        {
+          from: location,
+          to: {
+            pileKind: 'foundation',
+            pileIndex: foundationIndex
+          }
+        },
+        ''
+      );
+      return;
+    }
+  }
+
   const executeMove = useCallback(
     (move: Move, invalidFeedback: string): boolean => {
       if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
@@ -778,6 +806,7 @@ function App({ initialState }: AppProps) {
             <p>`W`: select/deselect top waste card.</p>
             <p>`D`: draw from stock (or recycle waste when stock is empty).</p>
             <p>`Enter` / `Space`: auto-move selected source to foundation (if legal).</p>
+            <p>Double-click a face-up card to auto-move it to foundation (if legal).</p>
             <p>After a win, an automatic fast replay starts with a replay theme.</p>
             <p>Auto finish starts when stock/waste are empty and all tableau cards are revealed.</p>
             <p>`Escape`: clear current selection.</p>
@@ -912,6 +941,7 @@ function App({ initialState }: AppProps) {
             selected={selected}
             animateFoundationEntry={isReplayMode}
             onCardClick={handleCardClick}
+            onCardDoubleClick={handleCardDoubleClick}
             onPileClick={handlePileClick}
           />
           <DragOverlay>

@@ -1,21 +1,23 @@
 import type { GameState, Location } from '../../types/game';
 import { PileView } from './PileView';
 
-type BoardProps = {
+export interface BoardProps {
   state: GameState;
   selected?: Location | null;
   animateFoundationEntry?: boolean;
   onCardClick?: (location: Location) => void;
+  onCardDoubleClick?: (location: Location) => void;
   onPileClick?: (location: Location) => void;
-};
+}
 
 export function Board({
   state,
   selected = null,
   animateFoundationEntry = false,
   onCardClick,
+  onCardDoubleClick,
   onPileClick
-}: BoardProps) {
+}: BoardProps): JSX.Element {
   return (
     <div
       className="mt-2 flex min-h-0 flex-1 flex-col gap-2 md:mt-3 md:grid md:grid-cols-6 md:gap-2 lg:gap-1"
@@ -31,6 +33,7 @@ export function Board({
           selected={selected}
           animateFoundationEntry={animateFoundationEntry}
           onCardClick={onCardClick}
+          onCardDoubleClick={onCardDoubleClick}
           onPileClick={onPileClick}
         />
         <PileView
@@ -39,6 +42,7 @@ export function Board({
           selected={selected}
           animateFoundationEntry={animateFoundationEntry}
           onCardClick={onCardClick}
+          onCardDoubleClick={onCardDoubleClick}
           onPileClick={onPileClick}
         />
       </section>
@@ -55,6 +59,7 @@ export function Board({
             selected={selected}
             animateFoundationEntry={animateFoundationEntry}
             onCardClick={onCardClick}
+            onCardDoubleClick={onCardDoubleClick}
             onPileClick={onPileClick}
           />
         ))}
@@ -73,6 +78,7 @@ export function Board({
             selected={selected}
             animateFoundationEntry={animateFoundationEntry}
             onCardClick={onCardClick}
+            onCardDoubleClick={onCardDoubleClick}
             onPileClick={onPileClick}
           />
         ))}

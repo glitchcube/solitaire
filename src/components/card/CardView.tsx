@@ -53,6 +53,7 @@ type CardViewProps = {
   isDraggable?: boolean;
   transitionName?: string;
   onClick?: () => void;
+  onDoubleClick?: () => void;
 };
 
 export function CardView({
@@ -60,7 +61,8 @@ export function CardView({
   isSelected = false,
   isDraggable = false,
   transitionName,
-  onClick
+  onClick,
+  onDoubleClick
 }: CardViewProps) {
   const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
   const ringClass = isSelected ? 'ring-2 ring-amber-300 ring-offset-2 ring-offset-emerald-900' : '';
@@ -83,6 +85,12 @@ export function CardView({
           }
           onClick?.();
         }}
+        onDoubleClick={(event) => {
+          if (onDoubleClick) {
+            event.stopPropagation();
+          }
+          onDoubleClick?.();
+        }}
       >
         <span className="text-[10px] font-semibold tracking-wide text-emerald-100 md:text-xs" />
       </button>
@@ -104,6 +112,12 @@ export function CardView({
           event.stopPropagation();
         }
         onClick?.();
+      }}
+      onDoubleClick={(event) => {
+        if (onDoubleClick) {
+          event.stopPropagation();
+        }
+        onDoubleClick?.();
       }}
     >
       <span

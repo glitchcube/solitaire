@@ -10,6 +10,7 @@ type PileViewProps = {
   selected?: Location | null;
   animateFoundationEntry?: boolean;
   onCardClick?: (location: Location) => void;
+  onCardDoubleClick?: (location: Location) => void;
   onPileClick?: (location: Location) => void;
 };
 
@@ -39,6 +40,7 @@ type DraggableCardProps = {
   testId?: string;
   hidden?: boolean;
   onClick?: () => void;
+  onDoubleClick?: () => void;
 };
 
 function DraggableCard({
@@ -50,7 +52,8 @@ function DraggableCard({
   className,
   testId,
   hidden = false,
-  onClick
+  onClick,
+  onDoubleClick
 }: DraggableCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `drag-${card.id}-${location.pileKind}-${location.pileIndex ?? 'none'}-${location.cardIndex ?? 'none'}`,
@@ -85,6 +88,7 @@ function DraggableCard({
         isDraggable={canDrag}
         transitionName={`card-${card.id}`}
         onClick={onClick}
+        onDoubleClick={onDoubleClick}
       />
     </div>
   );
@@ -97,6 +101,7 @@ export function PileView({
   selected = null,
   animateFoundationEntry = false,
   onCardClick,
+  onCardDoubleClick,
   onPileClick
 }: PileViewProps) {
   const { active } = useDndContext();
@@ -185,6 +190,13 @@ export function PileView({
                     cardIndex
                   })
                 }
+                onDoubleClick={() =>
+                  onCardDoubleClick?.({
+                    pileKind: 'tableau',
+                    pileIndex: index,
+                    cardIndex
+                  })
+                }
               />
             ))}
           </div>
@@ -232,6 +244,13 @@ export function PileView({
                     cardIndex: pile.cards.length - 1
                   })
               : undefined
+          }
+          onDoubleClick={() =>
+            onCardDoubleClick?.({
+              pileKind: pile.kind,
+              pileIndex: index,
+              cardIndex: pile.cards.length - 1
+            })
           }
         />
       ) : (

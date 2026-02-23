@@ -106,6 +106,20 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
 
+  it('moves a face-up card to foundation on double-click when legal', () => {
+    const state = baseState();
+    state.tableau[0].cards = [makeCard('hearts', 1, true)];
+    state.stock.cards = [makeCard('spades', 9, false)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.doubleClick(screen.getByText('A♥'));
+
+    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+  });
+
   it('supports W hotkey to select waste and move to tableau via number hotkey', () => {
     const state = baseState();
     state.waste.cards = [makeCard('hearts', 7, true)];
