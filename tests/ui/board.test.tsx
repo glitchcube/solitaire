@@ -40,6 +40,10 @@ describe('Board', () => {
   it('renders stock, waste, foundations, and all tableau piles', () => {
     render(<Board state={makeState()} />);
 
+    expect(screen.getByTestId('board-stock-waste')).toBeInTheDocument();
+    expect(screen.getByTestId('board-foundations')).toBeInTheDocument();
+    expect(screen.getByTestId('board-tableau')).toBeInTheDocument();
+
     expect(screen.getByTestId('pile-stock')).toBeInTheDocument();
     expect(screen.getByTestId('pile-waste')).toBeInTheDocument();
 
