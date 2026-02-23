@@ -25,9 +25,17 @@
 
 @media (min-width: 1024px) {
   :root {
-    --card-w: 3.25rem;
-    --card-h: 4.6rem;
-    --tableau-step: 1.28rem;
+    --card-w: 3.05rem;
+    --card-h: 5rem;
+    --tableau-step: 1.18rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --card-w: 3.35rem;
+    --card-h: 5.4rem;
+    --tableau-step: 1.24rem;
   }
 }
 

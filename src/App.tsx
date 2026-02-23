@@ -646,200 +646,200 @@ function App({ initialState }: AppProps) {
     isReplayMode || isAutoFinishMode ? 'bg-sky-900 text-sky-50' : 'bg-emerald-900 text-white';
 
   return (
-    <main
-      className={`flex h-dvh flex-col overflow-hidden px-2 py-2 md:px-4 md:py-3 ${boardThemeClass}`}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold tracking-tight md:text-3xl">Solitaire</h1>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Toggle hotkeys help"
-            className="rounded-md border border-emerald-100/70 px-2 py-1 text-xs font-semibold text-emerald-50 hover:bg-emerald-800 md:px-3 md:py-2 md:text-sm"
-            onClick={() => setShowHotkeys((current) => !current)}
-          >
-            ?
-          </button>
-          <button
-            type="button"
-            aria-label="Toggle saved replays"
-            className="rounded-md border border-emerald-100/70 px-2 py-1 text-xs font-semibold text-emerald-50 hover:bg-emerald-800 md:px-3 md:py-2 md:text-sm"
-            onClick={() => setShowSavedReplays((current) => !current)}
-          >
-            Replays ({savedReplays.length})
-          </button>
-          <button
-            type="button"
-            className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-950 hover:bg-emerald-200 md:px-3 md:py-2 md:text-sm"
-            onClick={() => setShowNewGameConfirm(true)}
-          >
-            New Game
-          </button>
-        </div>
-      </div>
-      <p className="mt-1 text-xs text-emerald-100 md:mt-2 md:text-base">
-        Click or drag cards to move them to tableau/foundation piles.
-      </p>
-      {isReplayMode ? (
-        <p
-          className="mt-2 rounded bg-sky-700/70 px-2 py-1 text-xs text-sky-100 md:text-sm"
-          data-testid="replay-mode-banner"
-        >
-          Replay Mode: fast auto-playback of your winning run.
-        </p>
-      ) : null}
-      {isAutoFinishMode ? (
-        <p
-          className="mt-2 rounded bg-sky-700/70 px-2 py-1 text-xs text-sky-100 md:text-sm"
-          data-testid="auto-finish-banner"
-        >
-          Auto Finish: moving cards to foundation.
-        </p>
-      ) : null}
-      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-emerald-200 md:text-sm">
-        <p>Selected: {selectionLabel(selected)}</p>
-        <p>Moves: {state.moveCount}</p>
-        <p>
-          Status:{' '}
-          {isReplayMode
-            ? 'Replay'
-            : isAutoFinishMode
-              ? 'Auto Finish'
-              : state.status === 'won'
-                ? 'Won'
-                : 'In Progress'}
-        </p>
-      </div>
-      {showHotkeys ? (
-        <section
-          className="mt-2 rounded-md border border-emerald-300/60 bg-emerald-800/60 px-2 py-2 text-xs text-emerald-50 md:px-3 md:text-sm"
-          data-testid="hotkeys-panel"
-        >
-          <p className="font-semibold">Hotkeys</p>
-          <p>`1..7`: select tableau column, then press `1..7` again to move to destination.</p>
-          <p>`W`: select/deselect top waste card.</p>
-          <p>`D`: draw from stock (or recycle waste when stock is empty).</p>
-          <p>`Enter` / `Space`: auto-move selected source to foundation (if legal).</p>
-          <p>After a win, an automatic fast replay starts with a replay theme.</p>
-          <p>Auto finish starts when stock/waste are empty and all tableau cards are revealed.</p>
-          <p>`Escape`: clear current selection.</p>
-          <p>`?`: toggle this hotkeys help panel.</p>
-        </section>
-      ) : null}
-      {showSavedReplays ? (
-        <section
-          className="mt-2 rounded-md border border-emerald-300/60 bg-emerald-800/60 px-2 py-2 text-xs text-emerald-50 md:px-3 md:text-sm"
-          data-testid="saved-replays-panel"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-semibold">Saved Replays</p>
+    <div className={`h-dvh w-full ${boardThemeClass}`}>
+      <main className="mx-auto flex h-full w-full max-w-[1280px] flex-col overflow-hidden px-2 py-2 md:px-4 md:py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-xl font-semibold tracking-tight md:text-3xl">Solitaire</h1>
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              className="rounded-md border border-emerald-200/70 px-2 py-1 text-[11px] font-semibold hover:bg-emerald-700 md:text-xs"
-              onClick={handleClearSavedReplays}
-              disabled={savedReplays.length === 0}
+              aria-label="Toggle hotkeys help"
+              className="rounded-md border border-emerald-100/70 px-2 py-1 text-xs font-semibold text-emerald-50 hover:bg-emerald-800 md:px-3 md:py-2 md:text-sm"
+              onClick={() => setShowHotkeys((current) => !current)}
             >
-              Clear
+              ?
+            </button>
+            <button
+              type="button"
+              aria-label="Toggle saved replays"
+              className="rounded-md border border-emerald-100/70 px-2 py-1 text-xs font-semibold text-emerald-50 hover:bg-emerald-800 md:px-3 md:py-2 md:text-sm"
+              onClick={() => setShowSavedReplays((current) => !current)}
+            >
+              Replays ({savedReplays.length})
+            </button>
+            <button
+              type="button"
+              className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-950 hover:bg-emerald-200 md:px-3 md:py-2 md:text-sm"
+              onClick={() => setShowNewGameConfirm(true)}
+            >
+              New Game
             </button>
           </div>
-          {savedReplays.length === 0 ? (
-            <p className="mt-2 text-emerald-200">No saved replays yet.</p>
-          ) : (
-            <ul className="mt-2 space-y-1">
-              {savedReplays.map((entry, index) => (
-                <li key={entry.id} className="flex items-center justify-between gap-2">
-                  <span className="text-emerald-100">
-                    #{savedReplays.length - index} · {entry.moveCount} moves
-                  </span>
-                  <button
-                    type="button"
-                    className="rounded-md bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-950 hover:bg-emerald-200 md:text-xs"
-                    onClick={() => handleReplaySavedRun(entry.id)}
-                  >
-                    Replay
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      ) : null}
-      {feedback ? (
-        <p
-          className="mt-2 rounded bg-rose-900/60 px-2 py-1 text-xs text-rose-100 md:px-3 md:py-2 md:text-sm"
-          role="alert"
-        >
-          {feedback}
+        </div>
+        <p className="mt-1 text-xs text-emerald-100 md:mt-2 md:text-base">
+          Click or drag cards to move them to tableau/foundation piles.
         </p>
-      ) : null}
-      {showNewGameConfirm ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/60 p-4">
-          <div
-            className="w-full max-w-sm rounded-md border border-amber-200/70 bg-emerald-800 px-4 py-4 text-sm text-amber-50 shadow-xl"
-            role="dialog"
-            aria-modal="true"
-            aria-label="New game confirmation"
+        {isReplayMode ? (
+          <p
+            className="mt-2 rounded bg-sky-700/70 px-2 py-1 text-xs text-sky-100 md:text-sm"
+            data-testid="replay-mode-banner"
           >
-            <p className="font-semibold">Start a new game?</p>
-            <p className="mt-1 text-xs text-amber-100 md:text-sm">
-              Your current progress will be lost.
-            </p>
-            <div className="mt-4 flex gap-2">
+            Replay Mode: fast auto-playback of your winning run.
+          </p>
+        ) : null}
+        {isAutoFinishMode ? (
+          <p
+            className="mt-2 rounded bg-sky-700/70 px-2 py-1 text-xs text-sky-100 md:text-sm"
+            data-testid="auto-finish-banner"
+          >
+            Auto Finish: moving cards to foundation.
+          </p>
+        ) : null}
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-emerald-200 md:text-sm">
+          <p>Selected: {selectionLabel(selected)}</p>
+          <p>Moves: {state.moveCount}</p>
+          <p>
+            Status:{' '}
+            {isReplayMode
+              ? 'Replay'
+              : isAutoFinishMode
+                ? 'Auto Finish'
+                : state.status === 'won'
+                  ? 'Won'
+                  : 'In Progress'}
+          </p>
+        </div>
+        {showHotkeys ? (
+          <section
+            className="mt-2 rounded-md border border-emerald-300/60 bg-emerald-800/60 px-2 py-2 text-xs text-emerald-50 md:px-3 md:text-sm"
+            data-testid="hotkeys-panel"
+          >
+            <p className="font-semibold">Hotkeys</p>
+            <p>`1..7`: select tableau column, then press `1..7` again to move to destination.</p>
+            <p>`W`: select/deselect top waste card.</p>
+            <p>`D`: draw from stock (or recycle waste when stock is empty).</p>
+            <p>`Enter` / `Space`: auto-move selected source to foundation (if legal).</p>
+            <p>After a win, an automatic fast replay starts with a replay theme.</p>
+            <p>Auto finish starts when stock/waste are empty and all tableau cards are revealed.</p>
+            <p>`Escape`: clear current selection.</p>
+            <p>`?`: toggle this hotkeys help panel.</p>
+          </section>
+        ) : null}
+        {showSavedReplays ? (
+          <section
+            className="mt-2 rounded-md border border-emerald-300/60 bg-emerald-800/60 px-2 py-2 text-xs text-emerald-50 md:px-3 md:text-sm"
+            data-testid="saved-replays-panel"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-semibold">Saved Replays</p>
               <button
                 type="button"
-                className="rounded-md border border-amber-200/80 px-3 py-1 text-xs font-semibold text-amber-50 hover:bg-emerald-700 md:text-sm"
-                onClick={() => setShowNewGameConfirm(false)}
+                className="rounded-md border border-emerald-200/70 px-2 py-1 text-[11px] font-semibold hover:bg-emerald-700 md:text-xs"
+                onClick={handleClearSavedReplays}
+                disabled={savedReplays.length === 0}
               >
-                Cancel
+                Clear
               </button>
-              <button
-                type="button"
-                className="rounded-md bg-amber-200 px-3 py-1 text-xs font-semibold text-emerald-950 hover:bg-amber-300 md:text-sm"
-                onClick={startNewGame}
-              >
-                Start New Game
-              </button>
+            </div>
+            {savedReplays.length === 0 ? (
+              <p className="mt-2 text-emerald-200">No saved replays yet.</p>
+            ) : (
+              <ul className="mt-2 space-y-1">
+                {savedReplays.map((entry, index) => (
+                  <li key={entry.id} className="flex items-center justify-between gap-2">
+                    <span className="text-emerald-100">
+                      #{savedReplays.length - index} · {entry.moveCount} moves
+                    </span>
+                    <button
+                      type="button"
+                      className="rounded-md bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-950 hover:bg-emerald-200 md:text-xs"
+                      onClick={() => handleReplaySavedRun(entry.id)}
+                    >
+                      Replay
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ) : null}
+        {feedback ? (
+          <p
+            className="mt-2 rounded bg-rose-900/60 px-2 py-1 text-xs text-rose-100 md:px-3 md:py-2 md:text-sm"
+            role="alert"
+          >
+            {feedback}
+          </p>
+        ) : null}
+        {showNewGameConfirm ? (
+          <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/60 p-4">
+            <div
+              className="w-full max-w-sm rounded-md border border-amber-200/70 bg-emerald-800 px-4 py-4 text-sm text-amber-50 shadow-xl"
+              role="dialog"
+              aria-modal="true"
+              aria-label="New game confirmation"
+            >
+              <p className="font-semibold">Start a new game?</p>
+              <p className="mt-1 text-xs text-amber-100 md:text-sm">
+                Your current progress will be lost.
+              </p>
+              <div className="mt-4 flex gap-2">
+                <button
+                  type="button"
+                  className="rounded-md border border-amber-200/80 px-3 py-1 text-xs font-semibold text-amber-50 hover:bg-emerald-700 md:text-sm"
+                  onClick={() => setShowNewGameConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="rounded-md bg-amber-200 px-3 py-1 text-xs font-semibold text-emerald-950 hover:bg-amber-300 md:text-sm"
+                  onClick={startNewGame}
+                >
+                  Start New Game
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ) : null}
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragCancel={() => setActiveDrag(null)}
-      >
-        <Board
-          state={state}
-          selected={selected}
-          onCardClick={handleCardClick}
-          onPileClick={handlePileClick}
-        />
-        <DragOverlay>
-          {dragPreview ? (
-            <div
-              className="relative w-[var(--card-w)]"
-              style={{
-                height: `calc(var(--card-h) + ${Math.max(dragPreview.cards.length - 1, 0)} * var(--tableau-step))`
-              }}
-            >
-              {dragPreview.cards.map((card, cardIndex) => (
-                <div
-                  key={`${card.id}-overlay`}
-                  className="absolute left-0"
-                  style={{
-                    top: `calc(${cardIndex} * var(--tableau-step))`,
-                    zIndex: cardIndex + 1
-                  }}
-                >
-                  <CardView card={card} isDraggable={false} />
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
-    </main>
+        ) : null}
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={() => setActiveDrag(null)}
+        >
+          <Board
+            state={state}
+            selected={selected}
+            onCardClick={handleCardClick}
+            onPileClick={handlePileClick}
+          />
+          <DragOverlay>
+            {dragPreview ? (
+              <div
+                className="relative w-[var(--card-w)]"
+                style={{
+                  height: `calc(var(--card-h) + ${Math.max(dragPreview.cards.length - 1, 0)} * var(--tableau-step))`
+                }}
+              >
+                {dragPreview.cards.map((card, cardIndex) => (
+                  <div
+                    key={`${card.id}-overlay`}
+                    className="absolute left-0"
+                    style={{
+                      top: `calc(${cardIndex} * var(--tableau-step))`,
+                      zIndex: cardIndex + 1
+                    }}
+                  >
+                    <CardView card={card} isDraggable={false} />
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      </main>
+    </div>
   );
 }
 

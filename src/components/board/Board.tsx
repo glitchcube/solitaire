@@ -11,11 +11,11 @@ type BoardProps = {
 export function Board({ state, selected = null, onCardClick, onPileClick }: BoardProps) {
   return (
     <div
-      className="mt-2 flex min-h-0 flex-1 flex-col gap-2 md:mt-3 md:grid md:grid-cols-6 md:gap-3"
+      className="mt-2 flex min-h-0 flex-1 flex-col gap-2 md:mt-3 md:grid md:grid-cols-6 md:gap-2 lg:gap-1"
       data-testid="board-root"
     >
       <section
-        className="order-3 mt-auto grid grid-cols-2 gap-1 md:order-none md:col-span-2 md:mt-0 md:gap-2"
+        className="order-3 mt-auto grid grid-cols-2 gap-1 md:order-none md:col-span-2 md:mt-0 md:gap-1"
         data-testid="board-stock-waste"
       >
         <PileView
@@ -34,7 +34,7 @@ export function Board({ state, selected = null, onCardClick, onPileClick }: Boar
         />
       </section>
       <section
-        className="order-1 grid grid-cols-4 gap-1 md:order-none md:col-span-4 md:gap-2"
+        className="order-1 grid grid-cols-4 gap-1 md:order-none md:col-span-4 md:gap-1"
         data-testid="board-foundations"
       >
         {state.foundations.map((pile, index) => (
@@ -51,7 +51,7 @@ export function Board({ state, selected = null, onCardClick, onPileClick }: Boar
       </section>
 
       <section
-        className="order-2 grid min-h-0 flex-1 grid-cols-7 gap-1 md:order-none md:col-span-6 md:gap-2"
+        className="order-2 grid min-h-0 flex-1 grid-cols-7 gap-1 md:order-none md:col-span-6 md:gap-1"
         data-testid="board-tableau"
       >
         {state.tableau.map((pile, index) => (

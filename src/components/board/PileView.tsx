@@ -100,7 +100,7 @@ export function PileView({
       location: pileLocation
     }
   });
-  const pileClass = `${pile.kind === 'tableau' ? 'min-h-0' : ''} rounded-md bg-emerald-800/50 p-1 md:p-2 ${
+  const pileClass = `${pile.kind === 'tableau' ? 'min-h-0' : ''} rounded-md bg-emerald-800/50 p-1 md:p-1 ${
     isOver ? 'ring-2 ring-cyan-300 ring-offset-2 ring-offset-emerald-900' : ''
   } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900`;
 

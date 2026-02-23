@@ -92,6 +92,7 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 - [done] Add endgame auto-finish when stock/waste are empty and all tableau cards are revealed: automatically move legal cards to foundations step-by-step at fast speed, and stop safely when no legal foundation move remains.
 - [done] Bug: On iPhone/mobile, tapping the face-down stock card is hard/unreliable for drawing the next card; ensure the stock card itself is consistently tappable.
 - [done] Feature: In phone layout, move stock controls to the bottom of the screen (or provide a bottom action area) for easier thumb reach when drawing and playing from waste.
+- [done] Desktop layout polish: increase desktop card size and compact board spacing/gaps so tableau/foundation use more available space with a denser, more phone-like feel.
 
 ## Ongoing Rules
 
