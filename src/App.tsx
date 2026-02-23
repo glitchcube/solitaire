@@ -22,8 +22,8 @@ type AppProps = {
   initialState?: GameState;
 };
 
-const REPLAY_STEP_MS = 80;
-const AUTO_FINISH_STEP_MS = 70;
+const REPLAY_STEP_MS = 150;
+const AUTO_FINISH_STEP_MS = 90;
 const SAVED_REPLAYS_KEY = 'solitaire.saved-replays.v1';
 const MAX_SAVED_REPLAYS = 10;
 
