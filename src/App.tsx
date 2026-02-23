@@ -959,6 +959,15 @@ function App({ initialState }: AppProps) {
     setFeedback('');
   }
 
+  function handleNewGameRequest(): void {
+    if (isDemoMode || state.moveCount === 0) {
+      startNewGame();
+      return;
+    }
+
+    setShowNewGameConfirm(true);
+  }
+
   const boardThemeClass =
     isReplayMode || isAutoFinishMode
       ? 'bg-sky-900 text-sky-50'
@@ -996,7 +1005,7 @@ function App({ initialState }: AppProps) {
               className="rounded-md border border-cyan-100/70 bg-cyan-100/10 px-2 py-1 text-xs font-semibold text-cyan-50 hover:bg-cyan-800 md:px-3 md:py-2 md:text-sm"
               onClick={() => {
                 if (isDemoMode) {
-                  stopDemo('Demo stopped.');
+                  startNewGame();
                   return;
                 }
 
@@ -1008,7 +1017,7 @@ function App({ initialState }: AppProps) {
             <button
               type="button"
               className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-950 hover:bg-emerald-200 md:px-3 md:py-2 md:text-sm"
-              onClick={() => setShowNewGameConfirm(true)}
+              onClick={handleNewGameRequest}
             >
               New Game
             </button>
@@ -1070,7 +1079,7 @@ function App({ initialState }: AppProps) {
               <button
                 type="button"
                 className="rounded-md border border-cyan-100/70 px-2 py-1 text-[11px] font-semibold text-cyan-50 hover:bg-cyan-800 md:text-xs"
-                onClick={() => stopDemo('Demo stopped.')}
+                onClick={startNewGame}
               >
                 End Demo
               </button>

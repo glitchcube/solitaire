@@ -216,7 +216,7 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('4♠')).toBeInTheDocument();
   });
 
-  it('resets selection, feedback, and counters when starting a new game', () => {
+  it('starts new game immediately without confirmation when no move has been made', () => {
     const state = baseState();
     state.tableau[0].cards = [makeCard('hearts', 7, true)];
     state.tableau[1].cards = [makeCard('diamonds', 8, true)];
@@ -229,8 +229,7 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'New Game' }));
-    expect(screen.getByRole('dialog', { name: 'New game confirmation' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Start New Game' }));
+    expect(screen.queryByRole('dialog', { name: 'New game confirmation' })).not.toBeInTheDocument();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
@@ -238,23 +237,24 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('Draw Pile (24)')).toBeInTheDocument();
   });
 
-  it('keeps current game when new game confirmation is cancelled', () => {
+  it('keeps current game when new game confirmation is cancelled after at least one move', () => {
     const state = baseState();
     state.tableau[0].cards = [makeCard('hearts', 7, true)];
-    state.tableau[1].cards = [makeCard('diamonds', 8, true)];
+    state.tableau[1].cards = [makeCard('clubs', 8, true)];
 
     render(<App initialState={state} />);
 
     fireEvent.click(screen.getByText('7♥'));
     fireEvent.click(screen.getByTestId('pile-tableau-1'));
-    expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'New Game' }));
     expect(screen.getByRole('dialog', { name: 'New game confirmation' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
-    expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
     expect(screen.getByText('Draw Pile (0)')).toBeInTheDocument();
   });
 });

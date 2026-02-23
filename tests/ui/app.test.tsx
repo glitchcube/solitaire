@@ -432,4 +432,18 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next Step' }));
     expect(screen.getByText('Home 1 (2)')).toBeInTheDocument();
   });
+
+  it('starts a fresh game automatically when exiting demo mode', () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle demo mode' }));
+    expect(screen.getByTestId('demo-mode-banner')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'End Demo' }));
+
+    expect(screen.queryByTestId('demo-mode-banner')).not.toBeInTheDocument();
+    expect(screen.getByText('Status: In Progress')).toBeInTheDocument();
+    expect(screen.getByText('Draw Pile (24)')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 0')).toBeInTheDocument();
+  });
 });
