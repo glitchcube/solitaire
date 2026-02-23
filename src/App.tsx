@@ -16,7 +16,7 @@ import { CardView } from './components/card/CardView';
 import { applyMove, drawFromStock, recycleWasteToStock } from './game/engine';
 import { isValidToFoundationMove } from './game/rules';
 import { dealInitialBoard, createDeck, shuffleDeck } from './game/setup';
-import type { GameState, Location, Move, PileKind } from './types/game';
+import type { Card, GameState, Location, Move, PileKind, Rank, Suit } from './types/game';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
 type AppProps = {
@@ -62,6 +62,119 @@ function destinationAllowed(pileKind: PileKind): boolean {
 function createInitialGame(): GameState {
   return dealInitialBoard(shuffleDeck(createDeck()));
 }
+
+function makeDemoCard(suit: Suit, rank: Rank, faceUp: boolean): Card {
+  return {
+    id: `demo-${suit}-${rank}-${faceUp ? 'up' : 'down'}`,
+    suit,
+    rank,
+    faceUp
+  };
+}
+
+function createDemoGame(): GameState {
+  return {
+    tableau: [
+      { kind: 'tableau', cards: [makeDemoCard('hearts', 2, true)] },
+      { kind: 'tableau', cards: [makeDemoCard('hearts', 6, true)] },
+      {
+        kind: 'tableau',
+        cards: [makeDemoCard('clubs', 8, true), makeDemoCard('diamonds', 7, true)]
+      },
+      { kind: 'tableau', cards: [makeDemoCard('hearts', 9, true)] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] }
+    ],
+    foundations: [
+      { kind: 'foundation', cards: [makeDemoCard('hearts', 1, true)] },
+      { kind: 'foundation', cards: [] },
+      { kind: 'foundation', cards: [] },
+      { kind: 'foundation', cards: [] }
+    ],
+    stock: {
+      kind: 'stock',
+      cards: [makeDemoCard('spades', 13, false), makeDemoCard('spades', 5, false)]
+    },
+    waste: { kind: 'waste', cards: [] },
+    moveCount: 0,
+    status: 'in_progress'
+  };
+}
+
+function moveTopWasteToTableau(state: GameState, tableauIndex: number): GameState {
+  const wasteTopIndex = state.waste.cards.length - 1;
+  if (wasteTopIndex < 0) {
+    return state;
+  }
+
+  return applyMove(state, {
+    from: { pileKind: 'waste', cardIndex: wasteTopIndex },
+    to: { pileKind: 'tableau', pileIndex: tableauIndex }
+  });
+}
+
+function moveTopTableauToFoundation(
+  state: GameState,
+  tableauIndex: number,
+  foundationIndex: number
+): GameState {
+  const cardIndex = state.tableau[tableauIndex]?.cards.length
+    ? state.tableau[tableauIndex].cards.length - 1
+    : -1;
+  if (cardIndex < 0) {
+    return state;
+  }
+
+  return applyMove(state, {
+    from: { pileKind: 'tableau', pileIndex: tableauIndex, cardIndex },
+    to: { pileKind: 'foundation', pileIndex: foundationIndex }
+  });
+}
+
+function moveTableauRun(
+  state: GameState,
+  fromTableauIndex: number,
+  fromCardIndex: number,
+  toTableauIndex: number
+): GameState {
+  return applyMove(state, {
+    from: { pileKind: 'tableau', pileIndex: fromTableauIndex, cardIndex: fromCardIndex },
+    to: { pileKind: 'tableau', pileIndex: toTableauIndex }
+  });
+}
+
+type DemoStep = {
+  message: string;
+  run: (state: GameState) => GameState;
+};
+
+const DEMO_STEPS: DemoStep[] = [
+  {
+    message: 'Demo: draw from Draw Pile into Discard Pile.',
+    run: (state) => drawFromStock(state)
+  },
+  {
+    message: 'Demo: move Discard Pile card to a Column.',
+    run: (state) => moveTopWasteToTableau(state, 1)
+  },
+  {
+    message: 'Demo: move a Column card to a Home pile.',
+    run: (state) => moveTopTableauToFoundation(state, 0, 0)
+  },
+  {
+    message: 'Demo: move a full Column stack together.',
+    run: (state) => moveTableauRun(state, 2, 0, 3)
+  },
+  {
+    message: 'Demo: draw another card from Draw Pile.',
+    run: (state) => drawFromStock(state)
+  },
+  {
+    message: 'Demo: kings can move to empty Columns.',
+    run: (state) => moveTopWasteToTableau(state, 4)
+  }
+];
 
 function isActivationKey(key: string): boolean {
   return key === 'Enter' || key === ' ';
@@ -226,6 +339,9 @@ function App({ initialState }: AppProps) {
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [isReplayMode, setIsReplayMode] = useState(false);
   const [isAutoFinishMode, setIsAutoFinishMode] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [demoStepIndex, setDemoStepIndex] = useState(0);
+  const [demoMessage, setDemoMessage] = useState('');
   const [hasReplayedWin, setHasReplayedWin] = useState(false);
   const [hasSavedCurrentWinReplay, setHasSavedCurrentWinReplay] = useState(false);
   const [savedReplays, setSavedReplays] = useState<SavedReplay[]>([]);
@@ -280,7 +396,7 @@ function App({ initialState }: AppProps) {
   }, []);
 
   function canSelectSource(location: Location): boolean {
-    if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
+    if (isReplayMode || isAutoFinishMode || isDemoMode || showNewGameConfirm) {
       return false;
     }
 
@@ -339,7 +455,7 @@ function App({ initialState }: AppProps) {
 
   const executeMove = useCallback(
     (move: Move, invalidFeedback: string): boolean => {
-      if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
+      if (isReplayMode || isAutoFinishMode || isDemoMode || showNewGameConfirm) {
         return false;
       }
 
@@ -354,11 +470,11 @@ function App({ initialState }: AppProps) {
       setFeedback('');
       return true;
     },
-    [isAutoFinishMode, isReplayMode, showNewGameConfirm, state]
+    [isAutoFinishMode, isDemoMode, isReplayMode, showNewGameConfirm, state]
   );
 
   function handlePileClick(destination: Location): void {
-    if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
+    if (isReplayMode || isAutoFinishMode || isDemoMode || showNewGameConfirm) {
       return;
     }
 
@@ -385,7 +501,7 @@ function App({ initialState }: AppProps) {
     }
 
     if (!destinationAllowed(destination.pileKind)) {
-      setFeedback('Invalid destination. Choose a tableau or foundation pile.');
+      setFeedback('Invalid destination. Choose a column or home pile.');
       return;
     }
 
@@ -401,7 +517,7 @@ function App({ initialState }: AppProps) {
   }
 
   function handleDragStart(event: DragStartEvent): void {
-    if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
+    if (isReplayMode || isAutoFinishMode || isDemoMode || showNewGameConfirm) {
       return;
     }
 
@@ -410,7 +526,7 @@ function App({ initialState }: AppProps) {
   }
 
   function handleDragEnd(event: DragEndEvent): void {
-    if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
+    if (isReplayMode || isAutoFinishMode || isDemoMode || showNewGameConfirm) {
       return;
     }
 
@@ -440,7 +556,7 @@ function App({ initialState }: AppProps) {
         return;
       }
 
-      if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
+      if (isReplayMode || isAutoFinishMode || isDemoMode || showNewGameConfirm) {
         return;
       }
 
@@ -461,7 +577,7 @@ function App({ initialState }: AppProps) {
       if (key === 'w' || key === 'W') {
         event.preventDefault();
         if (state.waste.cards.length === 0) {
-          setFeedback('Waste is empty.');
+          setFeedback('Discard pile is empty.');
           return;
         }
 
@@ -482,7 +598,7 @@ function App({ initialState }: AppProps) {
         if (!selected) {
           const cardIndex = findFirstFaceUpCardIndex(state, tableauIndex);
           if (cardIndex === null) {
-            setFeedback(`No movable cards in Tableau ${tableauIndex + 1}.`);
+            setFeedback(`No movable cards in Column ${tableauIndex + 1}.`);
             return;
           }
 
@@ -556,7 +672,15 @@ function App({ initialState }: AppProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [executeMove, isAutoFinishMode, isReplayMode, selected, showNewGameConfirm, state]);
+  }, [
+    executeMove,
+    isAutoFinishMode,
+    isDemoMode,
+    isReplayMode,
+    selected,
+    showNewGameConfirm,
+    state
+  ]);
 
   const dragPreview = getDragPreview(state, activeDrag);
 
@@ -568,7 +692,7 @@ function App({ initialState }: AppProps) {
   }, []);
 
   const startAutoFinish = useCallback((): void => {
-    if (isReplayMode || isAutoFinishMode) {
+    if (isReplayMode || isAutoFinishMode || isDemoMode) {
       return;
     }
 
@@ -597,7 +721,7 @@ function App({ initialState }: AppProps) {
         setState(next);
       });
     }, AUTO_FINISH_STEP_MS);
-  }, [isAutoFinishMode, isReplayMode, runStateUpdateWithTransition, stopAutoFinish]);
+  }, [isAutoFinishMode, isDemoMode, isReplayMode, runStateUpdateWithTransition, stopAutoFinish]);
 
   const stopReplay = useCallback((): void => {
     if (replayTimerRef.current !== null) {
@@ -605,6 +729,52 @@ function App({ initialState }: AppProps) {
       replayTimerRef.current = null;
     }
   }, []);
+
+  const stopDemo = useCallback((message = ''): void => {
+    setIsDemoMode(false);
+    setDemoStepIndex(0);
+    setDemoMessage(message);
+  }, []);
+
+  const startDemo = useCallback((): void => {
+    stopAutoFinish();
+    stopReplay();
+    stopDemo();
+
+    const initialDemoState = createDemoGame();
+    historyRef.current = [initialDemoState];
+    setState(initialDemoState);
+    setSelected(null);
+    setFeedback('');
+    setShowNewGameConfirm(false);
+    setShowSavedReplays(false);
+    setIsReplayMode(false);
+    setIsAutoFinishMode(false);
+    setHasReplayedWin(true);
+    setHasSavedCurrentWinReplay(true);
+    setIsDemoMode(true);
+    setDemoStepIndex(0);
+    setDemoMessage('Demo ready. Click "Next Step" to run the first move.');
+  }, [stopAutoFinish, stopDemo, stopReplay]);
+
+  const runNextDemoStep = useCallback((): void => {
+    if (!isDemoMode || demoStepIndex >= DEMO_STEPS.length) {
+      return;
+    }
+
+    const step = DEMO_STEPS[demoStepIndex];
+    const isLastStep = demoStepIndex === DEMO_STEPS.length - 1;
+    setDemoMessage(
+      isLastStep
+        ? `${step.message} Demo complete. Start a new game and try it yourself.`
+        : step.message
+    );
+
+    runStateUpdateWithTransition(() => {
+      setState((current) => step.run(current));
+    });
+    setDemoStepIndex((current) => current + 1);
+  }, [demoStepIndex, isDemoMode, runStateUpdateWithTransition]);
 
   const startReplay = useCallback(
     (frames: GameState[]): void => {
@@ -648,7 +818,13 @@ function App({ initialState }: AppProps) {
   }, []);
 
   useEffect(() => {
-    if (state.status !== 'won' || isReplayMode || isAutoFinishMode || hasSavedCurrentWinReplay) {
+    if (
+      state.status !== 'won' ||
+      isReplayMode ||
+      isAutoFinishMode ||
+      isDemoMode ||
+      hasSavedCurrentWinReplay
+    ) {
       return;
     }
 
@@ -671,7 +847,7 @@ function App({ initialState }: AppProps) {
     saveSavedReplays(nextSaved);
     setSavedReplays(nextSaved);
     setHasSavedCurrentWinReplay(true);
-  }, [hasSavedCurrentWinReplay, isAutoFinishMode, isReplayMode, savedReplays, state]);
+  }, [hasSavedCurrentWinReplay, isAutoFinishMode, isDemoMode, isReplayMode, savedReplays, state]);
 
   useEffect(() => {
     if (isReplayMode) {
@@ -688,6 +864,7 @@ function App({ initialState }: AppProps) {
     if (
       isReplayMode ||
       isAutoFinishMode ||
+      isDemoMode ||
       showNewGameConfirm ||
       state.status === 'won' ||
       state.stock.cards.length > 0 ||
@@ -702,27 +879,35 @@ function App({ initialState }: AppProps) {
     }
 
     startAutoFinish();
-  }, [isAutoFinishMode, isReplayMode, showNewGameConfirm, startAutoFinish, state]);
+  }, [isAutoFinishMode, isDemoMode, isReplayMode, showNewGameConfirm, startAutoFinish, state]);
 
   useEffect(() => {
-    if (state.status !== 'won' || hasReplayedWin || isReplayMode || isAutoFinishMode) {
+    if (
+      state.status !== 'won' ||
+      hasReplayedWin ||
+      isReplayMode ||
+      isAutoFinishMode ||
+      isDemoMode
+    ) {
       return;
     }
 
     startReplay(historyRef.current);
-  }, [hasReplayedWin, isAutoFinishMode, isReplayMode, startReplay, state.status]);
+  }, [hasReplayedWin, isAutoFinishMode, isDemoMode, isReplayMode, startReplay, state.status]);
 
   useEffect(
     () => () => {
       stopAutoFinish();
       stopReplay();
+      stopDemo();
     },
-    [stopAutoFinish, stopReplay]
+    [stopAutoFinish, stopDemo, stopReplay]
   );
 
   function startNewGame(): void {
     stopAutoFinish();
     stopReplay();
+    stopDemo();
     const nextState = createInitialGame();
     setSelected(null);
     setFeedback('');
@@ -738,6 +923,7 @@ function App({ initialState }: AppProps) {
   function handlePlayAgainFromCelebration(): void {
     stopAutoFinish();
     stopReplay();
+    stopDemo();
     const nextState = createInitialGame();
     setSelected(null);
     setFeedback('');
@@ -758,6 +944,7 @@ function App({ initialState }: AppProps) {
 
     stopAutoFinish();
     stopReplay();
+    stopDemo();
     setShowSavedReplays(false);
     setShowNewGameConfirm(false);
     setHasReplayedWin(true);
@@ -773,7 +960,11 @@ function App({ initialState }: AppProps) {
   }
 
   const boardThemeClass =
-    isReplayMode || isAutoFinishMode ? 'bg-sky-900 text-sky-50' : 'bg-emerald-900 text-white';
+    isReplayMode || isAutoFinishMode
+      ? 'bg-sky-900 text-sky-50'
+      : isDemoMode
+        ? 'bg-cyan-900 text-cyan-50'
+        : 'bg-emerald-900 text-white';
   const showWinCelebration =
     state.status === 'won' && !isReplayMode && !isAutoFinishMode && !showNewGameConfirm;
 
@@ -801,6 +992,21 @@ function App({ initialState }: AppProps) {
             </button>
             <button
               type="button"
+              aria-label="Toggle demo mode"
+              className="rounded-md border border-cyan-100/70 bg-cyan-100/10 px-2 py-1 text-xs font-semibold text-cyan-50 hover:bg-cyan-800 md:px-3 md:py-2 md:text-sm"
+              onClick={() => {
+                if (isDemoMode) {
+                  stopDemo('Demo stopped.');
+                  return;
+                }
+
+                startDemo();
+              }}
+            >
+              {isDemoMode ? 'Stop Demo' : 'Demo'}
+            </button>
+            <button
+              type="button"
               className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-950 hover:bg-emerald-200 md:px-3 md:py-2 md:text-sm"
               onClick={() => setShowNewGameConfirm(true)}
             >
@@ -809,7 +1015,7 @@ function App({ initialState }: AppProps) {
           </div>
         </div>
         <p className="mt-1 text-xs text-emerald-100 md:mt-2 md:text-base">
-          Click or drag cards to move them to tableau/foundation piles.
+          Click or drag cards to move them to columns/home piles.
         </p>
         {isReplayMode ? (
           <p
@@ -824,8 +1030,52 @@ function App({ initialState }: AppProps) {
             className="mt-2 rounded bg-sky-700/70 px-2 py-1 text-xs text-sky-100 md:text-sm"
             data-testid="auto-finish-banner"
           >
-            Auto Finish: moving cards to foundation.
+            Auto Finish: moving cards to home piles.
           </p>
+        ) : null}
+        {isDemoMode ? (
+          <section
+            className="mt-2 rounded border border-cyan-300/50 bg-cyan-900/70 px-2 py-2 text-xs text-cyan-100 md:px-3 md:text-sm"
+            data-testid="demo-mode-banner"
+          >
+            <p className="font-semibold tracking-wide text-cyan-50">Demo Mode</p>
+            <div className="mt-2 rounded border border-cyan-200/50 bg-cyan-800/60 px-2 py-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-100 md:text-xs">
+                Current Step
+              </p>
+              <p className="mt-1 text-cyan-50">{demoMessage}</p>
+            </div>
+            <div className="mt-2 rounded border border-cyan-200/40 bg-cyan-950/50 px-2 py-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-100 md:text-xs">
+                Goal
+              </p>
+              <p className="mt-1 text-cyan-50/95">
+                Move all cards to the four Home piles (A to K by suit). Build Columns in descending
+                rank with alternating colors. Use Draw Pile to reveal cards and play from Discard
+                Pile.
+              </p>
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <span>
+                Completed: {demoStepIndex}/{DEMO_STEPS.length}
+              </span>
+              <button
+                type="button"
+                className="rounded-md border border-cyan-100/70 px-2 py-1 text-[11px] font-semibold text-cyan-50 hover:bg-cyan-800 md:text-xs disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={runNextDemoStep}
+                disabled={demoStepIndex >= DEMO_STEPS.length}
+              >
+                Next Step
+              </button>
+              <button
+                type="button"
+                className="rounded-md border border-cyan-100/70 px-2 py-1 text-[11px] font-semibold text-cyan-50 hover:bg-cyan-800 md:text-xs"
+                onClick={() => stopDemo('Demo stopped.')}
+              >
+                End Demo
+              </button>
+            </div>
+          </section>
         ) : null}
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-emerald-200 md:text-sm">
           <p>Selected: {selectionLabel(selected)}</p>
@@ -836,9 +1086,11 @@ function App({ initialState }: AppProps) {
               ? 'Replay'
               : isAutoFinishMode
                 ? 'Auto Finish'
-                : state.status === 'won'
-                  ? 'Won'
-                  : 'In Progress'}
+                : isDemoMode
+                  ? 'Demo'
+                  : state.status === 'won'
+                    ? 'Won'
+                    : 'In Progress'}
           </p>
         </div>
         {showHotkeys ? (
@@ -847,13 +1099,17 @@ function App({ initialState }: AppProps) {
             data-testid="hotkeys-panel"
           >
             <p className="font-semibold">Hotkeys</p>
-            <p>`1..7`: select tableau column, then press `1..7` again to move to destination.</p>
-            <p>`W`: select/deselect top waste card.</p>
-            <p>`D`: draw from stock (or recycle waste when stock is empty).</p>
-            <p>`Enter` / `Space`: auto-move selected source to foundation (if legal).</p>
-            <p>Double-click a face-up card to auto-move it to foundation (if legal).</p>
+            <p>`1..7`: select a Column, then press `1..7` again to move there.</p>
+            <p>`W`: select/deselect top Discard Pile card.</p>
+            <p>`D`: draw from Draw Pile (or recycle Discard Pile when Draw Pile is empty).</p>
+            <p>`Enter` / `Space`: auto-move selected source to a Home pile (if legal).</p>
+            <p>Double-click a face-up card to auto-move it to a Home pile (if legal).</p>
+            <p>Use `Demo` in the header for an in-app guided walkthrough.</p>
             <p>After a win, an automatic fast replay starts with a replay theme.</p>
-            <p>Auto finish starts when stock/waste are empty and all tableau cards are revealed.</p>
+            <p>
+              Auto finish starts when Draw Pile/Discard Pile are empty and all Column cards are
+              revealed.
+            </p>
             <p>`Escape`: clear current selection.</p>
             <p>`?`: toggle this hotkeys help panel.</p>
           </section>

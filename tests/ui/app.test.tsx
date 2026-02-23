@@ -172,16 +172,16 @@ describe('App', () => {
     });
     expect(screen.getByTestId('replay-mode-banner')).toBeInTheDocument();
     expect(screen.getByText('Status: Replay')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 1 (12)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (12)')).toBeInTheDocument();
 
     act(() => {
-      vi.advanceTimersByTime(140);
+      vi.advanceTimersByTime(160);
     });
-    expect(screen.getByText('Foundation 1 (13)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (13)')).toBeInTheDocument();
     expect(screen.getByTestId('draggable-hearts-13-up')).toHaveClass('foundation-glide-in');
 
     act(() => {
-      vi.advanceTimersByTime(140);
+      vi.advanceTimersByTime(160);
     });
     await act(async () => {
       await Promise.resolve();
@@ -200,12 +200,12 @@ describe('App', () => {
     });
     expect(screen.getByTestId('auto-finish-banner')).toBeInTheDocument();
     expect(screen.getByText('Status: Auto Finish')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (1)')).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(90);
     });
-    expect(screen.getByText('Foundation 1 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (2)')).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(90);
@@ -238,7 +238,7 @@ describe('App', () => {
     });
 
     expect(startViewTransition).toHaveBeenCalled();
-    expect(screen.getByText('Foundation 1 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (2)')).toBeInTheDocument();
   });
 
   it('falls back to non-transition updates when a prior View Transition is still in flight', async () => {
@@ -260,12 +260,12 @@ describe('App', () => {
     act(() => {
       vi.advanceTimersByTime(90);
     });
-    expect(screen.getByText('Foundation 1 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (2)')).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(90);
     });
-    expect(screen.getByText('Foundation 1 (3)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (3)')).toBeInTheDocument();
   });
 
   it('saves completed run history after a winning move', async () => {
@@ -351,14 +351,14 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Replay' }));
 
     expect(screen.getByTestId('replay-mode-banner')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 1 (1)')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (0)')).toBeInTheDocument();
 
     act(() => {
-      vi.advanceTimersByTime(140);
+      vi.advanceTimersByTime(160);
     });
-    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (1)')).toBeInTheDocument();
   });
 
   it('keeps auto-finish steps in replay history instead of jumping to final state', async () => {
@@ -373,12 +373,12 @@ describe('App', () => {
     act(() => {
       vi.advanceTimersByTime(90);
     });
-    expect(screen.getByText('Foundation 1 (12)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (12)')).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(90);
     });
-    expect(screen.getByText('Foundation 1 (13)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (13)')).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(90);
@@ -388,13 +388,13 @@ describe('App', () => {
     });
 
     expect(screen.getByTestId('replay-mode-banner')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 1 (11)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (11)')).toBeInTheDocument();
 
     act(() => {
-      vi.advanceTimersByTime(140);
+      vi.advanceTimersByTime(160);
     });
-    expect(screen.getByText('Foundation 1 (12)')).toBeInTheDocument();
-    expect(screen.queryByText('Foundation 1 (13)')).not.toBeInTheDocument();
+    expect(screen.getByText('Home 1 (12)')).toBeInTheDocument();
+    expect(screen.queryByText('Home 1 (13)')).not.toBeInTheDocument();
   });
 
   it('starts a fresh game from the win celebration Play Again button', async () => {
@@ -409,6 +409,27 @@ describe('App', () => {
 
     expect(screen.queryByTestId('win-celebration')).not.toBeInTheDocument();
     expect(screen.getByText('Status: In Progress')).toBeInTheDocument();
-    expect(screen.getByText('Stock (24)')).toBeInTheDocument();
+    expect(screen.getByText('Draw Pile (24)')).toBeInTheDocument();
+  });
+
+  it('runs guided demo mode and updates board state step-by-step', () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle demo mode' }));
+
+    expect(screen.getByTestId('demo-mode-banner')).toBeInTheDocument();
+    expect(screen.getByText('Status: Demo')).toBeInTheDocument();
+    expect(screen.getByText('Discard Pile (0)')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next Step' }));
+    expect(screen.getByText('Discard Pile (1)')).toBeInTheDocument();
+    expect(screen.getByText('Completed: 1/6')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next Step' }));
+    expect(screen.getByText('Discard Pile (0)')).toBeInTheDocument();
+    expect(screen.getByText('Column 2 (2)')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next Step' }));
+    expect(screen.getByText('Home 1 (2)')).toBeInTheDocument();
   });
 });

@@ -29,7 +29,7 @@ export function Board({
       >
         <PileView
           pile={state.stock}
-          title="Stock"
+          title="Draw Pile"
           selected={selected}
           animateFoundationEntry={animateFoundationEntry}
           onCardClick={onCardClick}
@@ -38,7 +38,7 @@ export function Board({
         />
         <PileView
           pile={state.waste}
-          title="Waste"
+          title="Discard Pile"
           selected={selected}
           animateFoundationEntry={animateFoundationEntry}
           onCardClick={onCardClick}
@@ -54,7 +54,7 @@ export function Board({
           <PileView
             key={`foundation-${index}`}
             pile={pile}
-            title={`Foundation ${index + 1}`}
+            title={`Home ${index + 1}`}
             index={index}
             selected={selected}
             animateFoundationEntry={animateFoundationEntry}
@@ -73,7 +73,7 @@ export function Board({
           <PileView
             key={`tableau-${index}`}
             pile={pile}
-            title={`Tableau ${index + 1}`}
+            title={`Column ${index + 1}`}
             index={index}
             selected={selected}
             animateFoundationEntry={animateFoundationEntry}

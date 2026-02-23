@@ -68,11 +68,11 @@ describe('Board', () => {
   it('shows pile counts in section headers', () => {
     render(<Board state={makeState()} />);
 
-    expect(screen.getByText('Stock (1)')).toBeInTheDocument();
-    expect(screen.getByText('Waste (1)')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 1 (2)')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 3 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Draw Pile (1)')).toBeInTheDocument();
+    expect(screen.getByText('Discard Pile (1)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Column 3 (0)')).toBeInTheDocument();
   });
 
   it('marks draggable cards and droppable piles for dnd', () => {

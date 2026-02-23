@@ -34,8 +34,8 @@ describe('App click-to-move interactions', () => {
     fireEvent.click(screen.getByText('7♥'));
     fireEvent.click(screen.getByTestId('pile-tableau-1'));
 
-    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Column 2 (2)')).toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
@@ -50,8 +50,8 @@ describe('App click-to-move interactions', () => {
     fireEvent.click(screen.getByText('7♥'));
     fireEvent.keyDown(screen.getByTestId('pile-tableau-1'), { key: 'Enter' });
 
-    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Column 2 (2)')).toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
@@ -66,8 +66,8 @@ describe('App click-to-move interactions', () => {
     fireEvent.click(screen.getByText('7♥'));
     fireEvent.keyDown(screen.getByTestId('pile-tableau-1'), { key: ' ' });
 
-    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Column 2 (2)')).toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
@@ -84,8 +84,8 @@ describe('App click-to-move interactions', () => {
 
     fireEvent.keyDown(window, { key: '2' });
 
-    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Column 2 (2)')).toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
@@ -100,8 +100,8 @@ describe('App click-to-move interactions', () => {
     fireEvent.keyDown(window, { key: '1' });
     fireEvent.keyDown(window, { key: 'Enter' });
 
-    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (1)')).toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
@@ -123,8 +123,8 @@ describe('App click-to-move interactions', () => {
 
     fireEvent.keyDown(window, { key: ' ' });
 
-    expect(screen.getByText('Tableau 1 (2)')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Home 2 (2)')).toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
@@ -138,8 +138,8 @@ describe('App click-to-move interactions', () => {
 
     fireEvent.doubleClick(screen.getByText('A♥'));
 
-    expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
-    expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (0)')).toBeInTheDocument();
+    expect(screen.getByText('Home 1 (1)')).toBeInTheDocument();
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
 
@@ -155,8 +155,8 @@ describe('App click-to-move interactions', () => {
 
     fireEvent.keyDown(window, { key: '1' });
 
-    expect(screen.getByText('Waste (0)')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 1 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Discard Pile (0)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (2)')).toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
@@ -172,8 +172,8 @@ describe('App click-to-move interactions', () => {
     fireEvent.click(screen.getByTestId('pile-tableau-1'));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
-    expect(screen.getByText('Tableau 1 (1)')).toBeInTheDocument();
-    expect(screen.getByText('Tableau 2 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Column 1 (1)')).toBeInTheDocument();
+    expect(screen.getByText('Column 2 (1)')).toBeInTheDocument();
     expect(screen.getByText('Moves: 0')).toBeInTheDocument();
   });
 
@@ -185,8 +185,8 @@ describe('App click-to-move interactions', () => {
 
     fireEvent.click(screen.getByTestId('pile-stock'));
 
-    expect(screen.getByText('Stock (0)')).toBeInTheDocument();
-    expect(screen.getByText('Waste (1)')).toBeInTheDocument();
+    expect(screen.getByText('Draw Pile (0)')).toBeInTheDocument();
+    expect(screen.getByText('Discard Pile (1)')).toBeInTheDocument();
     expect(screen.getByText('4♠')).toBeInTheDocument();
   });
 
@@ -198,8 +198,8 @@ describe('App click-to-move interactions', () => {
 
     fireEvent.click(screen.getByTestId('card-spades-4-down'));
 
-    expect(screen.getByText('Stock (0)')).toBeInTheDocument();
-    expect(screen.getByText('Waste (1)')).toBeInTheDocument();
+    expect(screen.getByText('Draw Pile (0)')).toBeInTheDocument();
+    expect(screen.getByText('Discard Pile (1)')).toBeInTheDocument();
     expect(screen.getByText('4♠')).toBeInTheDocument();
   });
 
@@ -211,8 +211,8 @@ describe('App click-to-move interactions', () => {
 
     fireEvent.keyDown(window, { key: 'd' });
 
-    expect(screen.getByText('Stock (0)')).toBeInTheDocument();
-    expect(screen.getByText('Waste (1)')).toBeInTheDocument();
+    expect(screen.getByText('Draw Pile (0)')).toBeInTheDocument();
+    expect(screen.getByText('Discard Pile (1)')).toBeInTheDocument();
     expect(screen.getByText('4♠')).toBeInTheDocument();
   });
 
@@ -235,7 +235,7 @@ describe('App click-to-move interactions', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText('Selected: none')).toBeInTheDocument();
     expect(screen.getByText('Moves: 0')).toBeInTheDocument();
-    expect(screen.getByText('Stock (24)')).toBeInTheDocument();
+    expect(screen.getByText('Draw Pile (24)')).toBeInTheDocument();
   });
 
   it('keeps current game when new game confirmation is cancelled', () => {
@@ -255,6 +255,6 @@ describe('App click-to-move interactions', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid move.');
     expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();
-    expect(screen.getByText('Stock (0)')).toBeInTheDocument();
+    expect(screen.getByText('Draw Pile (0)')).toBeInTheDocument();
   });
 });

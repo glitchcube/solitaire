@@ -95,6 +95,7 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 - [done] Desktop layout polish: increase desktop card size and compact board spacing/gaps so tableau/foundation use more available space with a denser, more phone-like feel.
 - [done] Feature: Double-click/tap a face-up card to auto-move it to foundation when a legal foundation destination exists.
 - [done] Replay polish: animate cards gliding into foundations during replay/auto-complete using View Transitions (`document.startViewTransition`) with card-level `view-transition-name`.
+- [done] Feature: Add a guided Demo Mode that auto-plays key mechanics (stock draw, waste-to-tableau, tableau-to-foundation, stack move, king-to-empty-column) with on-screen instructional text.
 
 ## Ongoing Rules
 
