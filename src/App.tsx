@@ -17,6 +17,7 @@ import { applyMove, drawFromStock, recycleWasteToStock } from './game/engine';
 import { isValidToFoundationMove } from './game/rules';
 import { dealInitialBoard, createDeck, shuffleDeck } from './game/setup';
 import type { GameState, Location, Move, PileKind } from './types/game';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 type AppProps = {
   initialState?: GameState;
@@ -1013,6 +1014,7 @@ function App({ initialState }: AppProps) {
           </DragOverlay>
         </DndContext>
       </main>
+      <SpeedInsights />
     </div>
   );
 }
