@@ -8,6 +8,7 @@ type PileViewProps = {
   title: string;
   index?: number;
   selected?: Location | null;
+  animateFoundationEntry?: boolean;
   onCardClick?: (location: Location) => void;
   onPileClick?: (location: Location) => void;
 };
@@ -78,7 +79,13 @@ function DraggableCard({
       {...attributes}
       {...listeners}
     >
-      <CardView card={card} isSelected={isSelected} isDraggable={canDrag} onClick={onClick} />
+      <CardView
+        card={card}
+        isSelected={isSelected}
+        isDraggable={canDrag}
+        transitionName={`card-${card.id}`}
+        onClick={onClick}
+      />
     </div>
   );
 }
@@ -88,6 +95,7 @@ export function PileView({
   title,
   index,
   selected = null,
+  animateFoundationEntry = false,
   onCardClick,
   onPileClick
 }: PileViewProps) {
@@ -212,6 +220,9 @@ export function PileView({
             cardIndex: pile.cards.length - 1
           })}
           canDrag={pile.kind === 'waste'}
+          className={
+            pile.kind === 'foundation' && animateFoundationEntry ? 'foundation-glide-in' : undefined
+          }
           onClick={
             pile.kind === 'waste'
               ? () =>

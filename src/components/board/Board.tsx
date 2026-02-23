@@ -4,11 +4,18 @@ import { PileView } from './PileView';
 type BoardProps = {
   state: GameState;
   selected?: Location | null;
+  animateFoundationEntry?: boolean;
   onCardClick?: (location: Location) => void;
   onPileClick?: (location: Location) => void;
 };
 
-export function Board({ state, selected = null, onCardClick, onPileClick }: BoardProps) {
+export function Board({
+  state,
+  selected = null,
+  animateFoundationEntry = false,
+  onCardClick,
+  onPileClick
+}: BoardProps) {
   return (
     <div
       className="mt-2 flex min-h-0 flex-1 flex-col gap-2 md:mt-3 md:grid md:grid-cols-6 md:gap-2 lg:gap-1"
@@ -22,6 +29,7 @@ export function Board({ state, selected = null, onCardClick, onPileClick }: Boar
           pile={state.stock}
           title="Stock"
           selected={selected}
+          animateFoundationEntry={animateFoundationEntry}
           onCardClick={onCardClick}
           onPileClick={onPileClick}
         />
@@ -29,6 +37,7 @@ export function Board({ state, selected = null, onCardClick, onPileClick }: Boar
           pile={state.waste}
           title="Waste"
           selected={selected}
+          animateFoundationEntry={animateFoundationEntry}
           onCardClick={onCardClick}
           onPileClick={onPileClick}
         />
@@ -44,6 +53,7 @@ export function Board({ state, selected = null, onCardClick, onPileClick }: Boar
             title={`Foundation ${index + 1}`}
             index={index}
             selected={selected}
+            animateFoundationEntry={animateFoundationEntry}
             onCardClick={onCardClick}
             onPileClick={onPileClick}
           />
@@ -61,6 +71,7 @@ export function Board({ state, selected = null, onCardClick, onPileClick }: Boar
             title={`Tableau ${index + 1}`}
             index={index}
             selected={selected}
+            animateFoundationEntry={animateFoundationEntry}
             onCardClick={onCardClick}
             onPileClick={onPileClick}
           />

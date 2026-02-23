@@ -90,3 +90,29 @@ body,
     transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(0.3);
   }
 }
+
+.foundation-glide-in {
+  animation: foundation-glide-in 170ms ease-out;
+}
+
+@keyframes foundation-glide-in {
+  0% {
+    opacity: 0.15;
+    transform: translateY(26px) scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(*) {
+  animation-duration: 110ms;
+  animation-timing-function: cubic-bezier(0.2, 0.85, 0.3, 1);
+}

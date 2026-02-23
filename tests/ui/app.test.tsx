@@ -95,6 +95,31 @@ function autoFinishWinState(): GameState {
   };
 }
 
+function autoFinishTwoStepState(): GameState {
+  return {
+    tableau: [
+      { kind: 'tableau', cards: [makeCard('hearts', 2, true)] },
+      { kind: 'tableau', cards: [makeCard('hearts', 3, true)] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] }
+    ],
+    foundations: [
+      { kind: 'foundation', cards: [makeCard('hearts', 1, true)] },
+      { kind: 'foundation', cards: [] },
+      { kind: 'foundation', cards: [] },
+      { kind: 'foundation', cards: [] }
+    ],
+    stock: { kind: 'stock', cards: [] },
+    waste: { kind: 'waste', cards: [] },
+    moveCount: 0,
+    status: 'in_progress'
+  };
+}
+
 function wonSnapshotState(): GameState {
   return {
     tableau: Array.from({ length: 7 }, () => ({ kind: 'tableau' as const, cards: [] })),
@@ -113,6 +138,7 @@ function wonSnapshotState(): GameState {
 
 afterEach(() => {
   vi.useRealTimers();
+  Reflect.deleteProperty(document as object, 'startViewTransition');
   window.localStorage.clear();
 });
 
@@ -152,6 +178,7 @@ describe('App', () => {
       vi.advanceTimersByTime(140);
     });
     expect(screen.getByText('Foundation 1 (13)')).toBeInTheDocument();
+    expect(screen.getByTestId('draggable-hearts-13-up')).toHaveClass('foundation-glide-in');
 
     act(() => {
       vi.advanceTimersByTime(140);
@@ -188,6 +215,57 @@ describe('App', () => {
     });
     expect(screen.queryByTestId('auto-finish-banner')).not.toBeInTheDocument();
     expect(screen.getByText('Status: In Progress')).toBeInTheDocument();
+  });
+
+  it('uses View Transitions API during auto-finish when available', async () => {
+    vi.useFakeTimers();
+    const startViewTransition = vi.fn((callback: () => void) => {
+      callback();
+      return { finished: Promise.resolve() };
+    });
+    Object.defineProperty(document, 'startViewTransition', {
+      value: startViewTransition,
+      configurable: true
+    });
+
+    render(<App initialState={autoFinishState()} />);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    act(() => {
+      vi.advanceTimersByTime(90);
+    });
+
+    expect(startViewTransition).toHaveBeenCalled();
+    expect(screen.getByText('Foundation 1 (2)')).toBeInTheDocument();
+  });
+
+  it('falls back to non-transition updates when a prior View Transition is still in flight', async () => {
+    vi.useFakeTimers();
+    const startViewTransition = vi.fn((callback: () => void) => {
+      callback();
+      return { finished: new Promise(() => {}) };
+    });
+    Object.defineProperty(document, 'startViewTransition', {
+      value: startViewTransition,
+      configurable: true
+    });
+
+    render(<App initialState={autoFinishTwoStepState()} />);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    act(() => {
+      vi.advanceTimersByTime(90);
+    });
+    expect(screen.getByText('Foundation 1 (2)')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(90);
+    });
+    expect(screen.getByText('Foundation 1 (3)')).toBeInTheDocument();
   });
 
   it('saves completed run history after a winning move', async () => {

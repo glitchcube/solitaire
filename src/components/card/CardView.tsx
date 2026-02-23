@@ -51,6 +51,7 @@ type CardViewProps = {
   card: Card;
   isSelected?: boolean;
   isDraggable?: boolean;
+  transitionName?: string;
   onClick?: () => void;
 };
 
@@ -58,6 +59,7 @@ export function CardView({
   card,
   isSelected = false,
   isDraggable = false,
+  transitionName,
   onClick
 }: CardViewProps) {
   const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
@@ -74,6 +76,7 @@ export function CardView({
         data-face-up="false"
         data-draggable={isDraggable ? 'true' : 'false'}
         className={`${baseClass} border border-emerald-700 bg-emerald-800`}
+        style={transitionName ? { viewTransitionName: transitionName } : undefined}
         onClick={(event) => {
           if (onClick) {
             event.stopPropagation();
@@ -95,6 +98,7 @@ export function CardView({
       data-face-up="true"
       data-draggable={isDraggable ? 'true' : 'false'}
       className={`${baseClass} relative border border-slate-300 bg-white`}
+      style={transitionName ? { viewTransitionName: transitionName } : undefined}
       onClick={(event) => {
         if (onClick) {
           event.stopPropagation();

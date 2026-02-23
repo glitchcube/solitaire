@@ -8,6 +8,7 @@ import {
   useSensors
 } from '@dnd-kit/core';
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { flushSync } from 'react-dom';
 import { Board } from './components/board/Board';
 import { createMoveFromDrop } from './components/board/dnd';
 import { getDragPreview } from './components/board/dragPreview';
@@ -21,8 +22,8 @@ type AppProps = {
   initialState?: GameState;
 };
 
-const REPLAY_STEP_MS = 140;
-const AUTO_FINISH_STEP_MS = 90;
+const REPLAY_STEP_MS = 80;
+const AUTO_FINISH_STEP_MS = 70;
 const SAVED_REPLAYS_KEY = 'solitaire.saved-replays.v1';
 const MAX_SAVED_REPLAYS = 10;
 
@@ -191,6 +192,8 @@ function App({ initialState }: AppProps) {
   const [feedback, setFeedback] = useState<string>('');
   const historyRef = useRef<GameState[]>([state]);
   const stateRef = useRef(state);
+  const isViewTransitionInFlightRef = useRef(false);
+  const disableViewTransitionsRef = useRef(false);
   const replayTimerRef = useRef<number | null>(null);
   const autoFinishTimerRef = useRef<number | null>(null);
   const sensors = useSensors(
@@ -200,6 +203,41 @@ function App({ initialState }: AppProps) {
       }
     })
   );
+
+  const runStateUpdateWithTransition = useCallback((update: () => void): void => {
+    if (disableViewTransitionsRef.current || isViewTransitionInFlightRef.current) {
+      update();
+      return;
+    }
+
+    const transitionDocument = document as Document & {
+      startViewTransition?: (cb: () => void) => { finished?: Promise<unknown> } | undefined;
+    };
+
+    if (typeof transitionDocument.startViewTransition !== 'function') {
+      update();
+      return;
+    }
+
+    try {
+      isViewTransitionInFlightRef.current = true;
+      const transition = transitionDocument.startViewTransition(() => {
+        flushSync(update);
+      });
+
+      Promise.resolve(transition?.finished)
+        .catch(() => {
+          disableViewTransitionsRef.current = true;
+        })
+        .finally(() => {
+          isViewTransitionInFlightRef.current = false;
+        });
+    } catch {
+      disableViewTransitionsRef.current = true;
+      isViewTransitionInFlightRef.current = false;
+      update();
+    }
+  }, []);
 
   function canSelectSource(location: Location): boolean {
     if (isReplayMode || isAutoFinishMode || showNewGameConfirm) {
@@ -482,9 +520,11 @@ function App({ initialState }: AppProps) {
         return;
       }
 
-      setState(next);
+      runStateUpdateWithTransition(() => {
+        setState(next);
+      });
     }, AUTO_FINISH_STEP_MS);
-  }, [isAutoFinishMode, isReplayMode, stopAutoFinish]);
+  }, [isAutoFinishMode, isReplayMode, runStateUpdateWithTransition, stopAutoFinish]);
 
   const stopReplay = useCallback((): void => {
     if (replayTimerRef.current !== null) {
@@ -518,10 +558,12 @@ function App({ initialState }: AppProps) {
           return;
         }
 
-        setState(frames[frameIndex]);
+        runStateUpdateWithTransition(() => {
+          setState(frames[frameIndex]);
+        });
       }, REPLAY_STEP_MS);
     },
-    [stopReplay]
+    [runStateUpdateWithTransition, stopReplay]
   );
 
   useEffect(() => {
@@ -868,6 +910,7 @@ function App({ initialState }: AppProps) {
           <Board
             state={state}
             selected={selected}
+            animateFoundationEntry={isReplayMode}
             onCardClick={handleCardClick}
             onPileClick={handlePileClick}
           />
