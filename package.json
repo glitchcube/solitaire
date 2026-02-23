@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "pnpm typecheck && pnpm lint && pnpm test",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",

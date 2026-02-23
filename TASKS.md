@@ -86,7 +86,7 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 ## M10 - Backlog (Reported Bugs + Requested Features)
 
-- [todo] Bug: Auto-foundation hotkey (`Enter`/`Space`) should move the top card of a selected tableau run to foundation when legal (example: foundation has `A♣`, tableau has `4♣ 3♥ 2♣`, pressing hotkey should move `2♣`).
+- [done] Bug: Auto-foundation hotkey (`Enter`/`Space`) should move the top card of a selected tableau run to foundation when legal (example: foundation has `A♣`, tableau has `4♣ 3♥ 2♣`, pressing hotkey should move `2♣`).
 - [done] Add confirmation dialog before starting a New Game to prevent accidental reset.
 - [done] Feature: Save completed replay history so players can replay past wins later.
 - [done] Add endgame auto-finish when stock/waste are empty and all tableau cards are revealed: automatically move legal cards to foundations step-by-step at fast speed, and stop safely when no legal foundation move remains.
@@ -100,4 +100,6 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 
 - [todo] For every bug fixed, add a test in the same PR/commit.
 - [todo] Do not merge milestone work unless all related tests pass.
+- [todo] Do not merge milestone work unless the production build passes (`pnpm build`).
+- [todo] Run `pnpm check` (typecheck + lint + tests + build) before marking a task done.
 - [todo] Keep game logic pure and UI-independent.
