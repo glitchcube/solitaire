@@ -50,3 +50,43 @@ body,
   height: 100%;
   overflow: hidden;
 }
+
+.win-fireworks {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.win-firework-particle {
+  --delay: 0ms;
+  --x: 80px;
+  --y: -140px;
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, #fde68a 0%, #f59e0b 65%, #ef4444 100%);
+  opacity: 0;
+  animation: win-firework-burst 1200ms ease-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes win-firework-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(0.3);
+  }
+}

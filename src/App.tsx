@@ -7,7 +7,7 @@ import {
   useSensor,
   useSensors
 } from '@dnd-kit/core';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Board } from './components/board/Board';
 import { createMoveFromDrop } from './components/board/dnd';
 import { getDragPreview } from './components/board/dragPreview';
@@ -620,6 +620,21 @@ function App({ initialState }: AppProps) {
     setState(nextState);
   }
 
+  function handlePlayAgainFromCelebration(): void {
+    stopAutoFinish();
+    stopReplay();
+    const nextState = createInitialGame();
+    setSelected(null);
+    setFeedback('');
+    setIsAutoFinishMode(false);
+    setIsReplayMode(false);
+    setHasReplayedWin(false);
+    setHasSavedCurrentWinReplay(false);
+    setShowNewGameConfirm(false);
+    historyRef.current = [nextState];
+    setState(nextState);
+  }
+
   function handleReplaySavedRun(replayId: string): void {
     const replay = savedReplays.find((entry) => entry.id === replayId);
     if (!replay) {
@@ -644,6 +659,8 @@ function App({ initialState }: AppProps) {
 
   const boardThemeClass =
     isReplayMode || isAutoFinishMode ? 'bg-sky-900 text-sky-50' : 'bg-emerald-900 text-white';
+  const showWinCelebration =
+    state.status === 'won' && !isReplayMode && !isAutoFinishMode && !showNewGameConfirm;
 
   return (
     <div className={`h-dvh w-full ${boardThemeClass}`}>
@@ -800,6 +817,46 @@ function App({ initialState }: AppProps) {
                 </button>
               </div>
             </div>
+          </div>
+        ) : null}
+        {showWinCelebration ? (
+          <div
+            className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4"
+            data-testid="win-celebration"
+          >
+            <div className="win-fireworks pointer-events-none">
+              {Array.from({ length: 18 }).map((_, index) => (
+                <span
+                  key={`firework-${index}`}
+                  className="win-firework-particle"
+                  style={
+                    {
+                      '--delay': `${(index % 6) * 120}ms`,
+                      '--x': `${(index % 2 === 0 ? 1 : -1) * (40 + (index % 5) * 20)}px`,
+                      '--y': `${-120 - (index % 4) * 30}px`
+                    } as CSSProperties
+                  }
+                />
+              ))}
+            </div>
+            <section className="pointer-events-auto w-full max-w-md rounded-xl border border-amber-300/70 bg-emerald-800/95 px-6 py-6 text-center text-emerald-50 shadow-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200">
+                Victory
+              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-white">You Won!</h2>
+              <p className="mt-2 text-sm text-emerald-100">
+                Clean finish. Replay is saved and ready any time.
+              </p>
+              <div className="mt-5 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  className="rounded-md bg-amber-200 px-4 py-2 text-sm font-semibold text-emerald-950 hover:bg-amber-300"
+                  onClick={handlePlayAgainFromCelebration}
+                >
+                  Play Again
+                </button>
+              </div>
+            </section>
           </div>
         ) : null}
         <DndContext

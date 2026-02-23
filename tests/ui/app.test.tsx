@@ -95,6 +95,22 @@ function autoFinishWinState(): GameState {
   };
 }
 
+function wonSnapshotState(): GameState {
+  return {
+    tableau: Array.from({ length: 7 }, () => ({ kind: 'tableau' as const, cards: [] })),
+    foundations: [
+      { kind: 'foundation', cards: suitCards('hearts', 13) },
+      { kind: 'foundation', cards: suitCards('clubs', 13) },
+      { kind: 'foundation', cards: suitCards('diamonds', 13) },
+      { kind: 'foundation', cards: suitCards('spades', 13) }
+    ],
+    stock: { kind: 'stock', cards: [] },
+    waste: { kind: 'waste', cards: [] },
+    moveCount: 42,
+    status: 'won'
+  };
+}
+
 afterEach(() => {
   vi.useRealTimers();
   window.localStorage.clear();
@@ -145,6 +161,7 @@ describe('App', () => {
     });
     expect(screen.queryByTestId('replay-mode-banner')).not.toBeInTheDocument();
     expect(screen.getByText('Status: Won')).toBeInTheDocument();
+    expect(screen.getByTestId('win-celebration')).toBeInTheDocument();
   });
 
   it('auto-finishes to foundation when stock/waste are empty and all cards are revealed', async () => {
@@ -300,5 +317,20 @@ describe('App', () => {
     });
     expect(screen.getByText('Foundation 1 (12)')).toBeInTheDocument();
     expect(screen.queryByText('Foundation 1 (13)')).not.toBeInTheDocument();
+  });
+
+  it('starts a fresh game from the win celebration Play Again button', async () => {
+    render(<App initialState={wonSnapshotState()} />);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.getByTestId('win-celebration')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play Again' }));
+
+    expect(screen.queryByTestId('win-celebration')).not.toBeInTheDocument();
+    expect(screen.getByText('Status: In Progress')).toBeInTheDocument();
+    expect(screen.getByText('Stock (24)')).toBeInTheDocument();
   });
 });
