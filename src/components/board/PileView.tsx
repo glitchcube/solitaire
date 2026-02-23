@@ -212,12 +212,15 @@ export function PileView({
             cardIndex: pile.cards.length - 1
           })}
           canDrag={pile.kind === 'waste'}
-          onClick={() =>
-            onCardClick?.({
-              pileKind: pile.kind,
-              pileIndex: index,
-              cardIndex: pile.cards.length - 1
-            })
+          onClick={
+            pile.kind === 'waste'
+              ? () =>
+                  onCardClick?.({
+                    pileKind: pile.kind,
+                    pileIndex: index,
+                    cardIndex: pile.cards.length - 1
+                  })
+              : undefined
           }
         />
       ) : (

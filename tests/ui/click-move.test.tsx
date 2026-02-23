@@ -153,6 +153,19 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('4♠')).toBeInTheDocument();
   });
 
+  it('draws from stock when the stock card itself is clicked', () => {
+    const state = baseState();
+    state.stock.cards = [makeCard('spades', 4, false)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.click(screen.getByTestId('card-spades-4-down'));
+
+    expect(screen.getByText('Stock (0)')).toBeInTheDocument();
+    expect(screen.getByText('Waste (1)')).toBeInTheDocument();
+    expect(screen.getByText('4♠')).toBeInTheDocument();
+  });
+
   it('draws from stock with D hotkey', () => {
     const state = baseState();
     state.stock.cards = [makeCard('spades', 4, false)];
