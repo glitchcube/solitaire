@@ -106,6 +106,29 @@ describe('App click-to-move interactions', () => {
     expect(screen.getByText('Moves: 1')).toBeInTheDocument();
   });
 
+  it('auto-moves top card from selected tableau run to foundation with Space', () => {
+    const state = baseState();
+    state.tableau[0].cards = [
+      makeCard('clubs', 4, true),
+      makeCard('hearts', 3, true),
+      makeCard('clubs', 2, true)
+    ];
+    state.foundations[1].cards = [makeCard('clubs', 1, true)];
+    state.stock.cards = [makeCard('spades', 9, false)];
+
+    render(<App initialState={state} />);
+
+    fireEvent.keyDown(window, { key: '1' });
+    expect(screen.getByText('Selected: tableau-0@0')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: ' ' });
+
+    expect(screen.getByText('Tableau 1 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Foundation 2 (2)')).toBeInTheDocument();
+    expect(screen.getByText('Selected: none')).toBeInTheDocument();
+    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+  });
+
   it('moves a face-up card to foundation on double-click when legal', () => {
     const state = baseState();
     state.tableau[0].cards = [makeCard('hearts', 1, true)];

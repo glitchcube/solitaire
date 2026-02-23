@@ -108,6 +108,45 @@ function findFirstFaceUpCardIndex(state: GameState, tableauIndex: number): numbe
   return cardIndex >= 0 ? cardIndex : null;
 }
 
+function getAutoFoundationSourceLocation(state: GameState, selected: Location): Location | null {
+  if (selected.pileKind === 'tableau') {
+    if (selected.pileIndex === undefined) {
+      return null;
+    }
+
+    const pile = state.tableau[selected.pileIndex];
+    const cardIndex = pile?.cards.length ? pile.cards.length - 1 : -1;
+    if (cardIndex < 0) {
+      return null;
+    }
+
+    const topCard = pile.cards[cardIndex];
+    if (!topCard?.faceUp) {
+      return null;
+    }
+
+    return {
+      pileKind: 'tableau',
+      pileIndex: selected.pileIndex,
+      cardIndex
+    };
+  }
+
+  if (selected.pileKind === 'waste') {
+    const cardIndex = state.waste.cards.length - 1;
+    if (cardIndex < 0) {
+      return null;
+    }
+
+    return {
+      pileKind: 'waste',
+      cardIndex
+    };
+  }
+
+  return null;
+}
+
 function allTableauCardsFaceUp(state: GameState): boolean {
   return state.tableau.every((pile) => pile.cards.every((card) => card.faceUp));
 }
@@ -483,19 +522,24 @@ function App({ initialState }: AppProps) {
         return;
       }
 
+      const foundationSource = getAutoFoundationSourceLocation(state, selected);
+      if (!foundationSource) {
+        return;
+      }
+
       for (
         let foundationIndex = 0;
         foundationIndex < state.foundations.length;
         foundationIndex += 1
       ) {
-        if (!isValidToFoundationMove(state, selected, foundationIndex)) {
+        if (!isValidToFoundationMove(state, foundationSource, foundationIndex)) {
           continue;
         }
 
         event.preventDefault();
         executeMove(
           {
-            from: selected,
+            from: foundationSource,
             to: {
               pileKind: 'foundation',
               pileIndex: foundationIndex
