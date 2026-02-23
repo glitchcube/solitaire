@@ -90,6 +90,8 @@ Status legend: `[todo]`, `[in-progress]`, `[done]`, `[blocked]`
 - [done] Add confirmation dialog before starting a New Game to prevent accidental reset.
 - [done] Feature: Save completed replay history so players can replay past wins later.
 - [done] Add endgame auto-finish when stock/waste are empty and all tableau cards are revealed: automatically move legal cards to foundations step-by-step at fast speed, and stop safely when no legal foundation move remains.
+- [todo] Bug: On iPhone/mobile, tapping the face-down stock card is hard/unreliable for drawing the next card; ensure the stock card itself is consistently tappable.
+- [todo] Feature: In phone layout, move stock controls to the bottom of the screen (or provide a bottom action area) for easier thumb reach when drawing and playing from waste.
 
 ## Ongoing Rules
 
