@@ -71,6 +71,30 @@ function autoFinishState(): GameState {
   };
 }
 
+function autoFinishWinState(): GameState {
+  return {
+    tableau: [
+      { kind: 'tableau', cards: [makeCard('hearts', 12, true)] },
+      { kind: 'tableau', cards: [makeCard('hearts', 13, true)] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] },
+      { kind: 'tableau', cards: [] }
+    ],
+    foundations: [
+      { kind: 'foundation', cards: suitCards('hearts', 11) },
+      { kind: 'foundation', cards: suitCards('clubs', 13) },
+      { kind: 'foundation', cards: suitCards('diamonds', 13) },
+      { kind: 'foundation', cards: suitCards('spades', 13) }
+    ],
+    stock: { kind: 'stock', cards: [] },
+    waste: { kind: 'waste', cards: [] },
+    moveCount: 0,
+    status: 'in_progress'
+  };
+}
+
 afterEach(() => {
   vi.useRealTimers();
   window.localStorage.clear();
@@ -240,5 +264,41 @@ describe('App', () => {
     });
     expect(screen.getByText('Tableau 1 (0)')).toBeInTheDocument();
     expect(screen.getByText('Foundation 1 (1)')).toBeInTheDocument();
+  });
+
+  it('keeps auto-finish steps in replay history instead of jumping to final state', async () => {
+    vi.useFakeTimers();
+    render(<App initialState={autoFinishWinState()} />);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.getByTestId('auto-finish-banner')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(90);
+    });
+    expect(screen.getByText('Foundation 1 (12)')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(90);
+    });
+    expect(screen.getByText('Foundation 1 (13)')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(90);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId('replay-mode-banner')).toBeInTheDocument();
+    expect(screen.getByText('Foundation 1 (11)')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(140);
+    });
+    expect(screen.getByText('Foundation 1 (12)')).toBeInTheDocument();
+    expect(screen.queryByText('Foundation 1 (13)')).not.toBeInTheDocument();
   });
 });

@@ -559,7 +559,7 @@ function App({ initialState }: AppProps) {
   }, [hasSavedCurrentWinReplay, isAutoFinishMode, isReplayMode, savedReplays, state]);
 
   useEffect(() => {
-    if (isReplayMode || isAutoFinishMode) {
+    if (isReplayMode) {
       return;
     }
 
@@ -567,7 +567,7 @@ function App({ initialState }: AppProps) {
     if (history[history.length - 1] !== state) {
       history.push(state);
     }
-  }, [isAutoFinishMode, isReplayMode, state]);
+  }, [isReplayMode, state]);
 
   useEffect(() => {
     if (
