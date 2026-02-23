@@ -20,11 +20,11 @@ export function Board({
 }: BoardProps) {
   return (
     <div
-      className="mt-2 flex min-h-0 flex-1 flex-col gap-2 md:mt-3 md:grid md:grid-cols-6 md:gap-2 lg:gap-1"
+      className="mt-1 flex min-h-0 flex-1 flex-col gap-1 md:mt-1 md:grid md:auto-rows-min md:grid-cols-6 md:content-start md:gap-1"
       data-testid="board-root"
     >
       <section
-        className="order-3 mt-auto grid grid-cols-2 gap-1 md:order-none md:col-span-2 md:mt-0 md:gap-1"
+        className="order-3 mt-auto grid content-start items-start grid-cols-2 gap-1 md:order-none md:col-span-2 md:mt-0 md:gap-1 md:self-start"
         data-testid="board-stock-waste"
       >
         <PileView
@@ -47,7 +47,7 @@ export function Board({
         />
       </section>
       <section
-        className="order-1 grid grid-cols-4 gap-1 md:order-none md:col-span-4 md:gap-1"
+        className="order-1 grid content-start items-start grid-cols-4 gap-1 md:order-none md:col-span-4 md:gap-1 md:self-start"
         data-testid="board-foundations"
       >
         {state.foundations.map((pile, index) => (
