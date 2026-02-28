@@ -18,6 +18,7 @@ import { isValidToFoundationMove } from './game/rules';
 import { dealInitialBoard, createDeck, shuffleDeck } from './game/setup';
 import type { Card, GameState, Location, Move, PileKind, Rank, Suit } from './types/game';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 
 type AppProps = {
   initialState?: GameState;
@@ -1280,6 +1281,7 @@ function App({ initialState }: AppProps) {
         </DndContext>
       </main>
       <SpeedInsights />
+      <Analytics />
     </div>
   );
 }
